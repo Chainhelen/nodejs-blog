@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>welcome</title>
+		<meta http-equiv="content-type" content="text/html;charset=utf-8">
+		<style>
+			.clearfix:after {
+				content: ".";
+				display: block;
+				height: 0;
+				clear: both;
+				visibility: hidden;
+			}
+			* html .clearfix {height: 1%;}
+
+			#topnav{
+				display:block;
+				background:#67A897;
+				position:fixed;
+				left:0;top:0;
+				width:100%;
+				height:60px;
+				z-index:3;
+				box-shadow: 0px 0px 40px black;
+				padding-bottom: 0px;
+			}
+
+			div#topnav li.first {
+				list-style:none;
+				display:inline;
+				height:100%;
+				float:left;
+			}
+			div#topnav li.first a.mainmenu{
+				text-decoration:none;
+				display:block;
+				float:left;
+				height:27px;
+				width:45px;
+				background-color:rgb(218,226,222);
+				padding:5px 13px 0px 13px;
+				text-align:center;
+
+				-moz-box-shadow:0px 7px 20px #5E5E5E;
+				-webkit-box-shadow:0px 7px 20px #5E5E5E;
+				box-shadow:0px 7px 20px #5E5E5E;
+
+				-moz-border-radius: 5px;  
+   				-webkit-border-radius: 5px;
+			    border-radius:5px;
+				color:rgb(58,164,19);
+				font-size:20px;
+				text-shadow:0px 3px 3px rgb(70,149,149);
+				margin-right:20px;
+			}
+			div#topnav li.first a:hover{
+				background:rgb(255,255,255);
+				color:rgb(0,193,201);
+				font-weight:800;
+			}
+			div#topnav ul#topul{
+				left: 100px;
+				position:relative;
+				margin-top:20px;
+				height:40px;
+			}
+			ul#topul li{ 
+				float: left; 
+				display: inline; 
+				font: 0.9em Arial, Helvetica, sans-serif; 
+				height: 5px; width: 100px;
+
+				list-style: none;
+				position:relative; 
+			}
+			ul { 
+				margin: 0px; padding: 0px; 
+			}	
+			ul#topul li ul { 
+				visibility: hidden; 
+			}
+			ul#topul li:hover ul { 
+				visibility: visible; 
+			}
+			li.first ul li{
+				margin-top:0px;
+				width:10px;
+				background-color:rgb(218,226,222);
+				border-bottom:solid 1px #ccc;
+				padding-top:10px;			
+				transition:height 1s, width 1s;
+				-moz-transition:height 1s, width 1s; /* Firefox 4 */
+				-webkit-transition:height 1s, width 1s; /* Safari and Chrome */
+				-o-transition:height 1s, width 1s; /* Opera */ 	
+
+				-moz-box-shadow: 10px 15px 20px rgb(84,197,179);
+				-webkit-box-shadow:10px 15px 20px rgb(84,197,179);
+				box-shadow:10px 15px 20px rgb(84,197,179);
+
+			}
+			ul#topul li:hover ul li{
+				height:20px;
+			}
+			li.first ul li:hover {
+				background:rgb(255,255,255);
+				width:100px !important;
+				text-align:center;
+			}
+			li.first ul li:hover a{
+				color:rgb(0,193,201);
+				font-weight:800;
+			}
+			li.first ul li a {
+				text-decoration:none;
+				text-shadow:0px 1px 2px rgb(70,149,149);
+				margin-left: 5px;
+			}
+			li.shadow{
+				-moz-box-shadow: 0px 15px 20px rgb(84,197,179);
+				-webkit-box-shadow:0px 15px 20px rgb(84,197,179);
+				box-shadow:0px 15px 20px rgb(84,197,179);
+
+//				-moz-border-radius:0px 0px 5px 5px;  
+//				-webkit-border-radius:0px 0px 5px 5px;
+	//		    border-radius:0px 0px 5px 5px;
+			}
+			li.showli{
+				width:70px !important;
+			}
+		</style>
+	</head>
+	<body style="margin:0">
+		<div id="topnav">
+			<ul id="topul">
+				<li class="first">
+					<a href="#" class="mainmenu">Home</a>
+				</li>
+				<li class="first">
+					<a href="#" class="mainmenu">Life</a>
+					<ul>
+						<li style="opacity:0;height:10px"></li>
+						<li class="showli"><a href="#">2011-2012</a></li>
+						<li class="showli"><a href="#">2012-2013</a></li>
+						<li class="shadow showli"><a href="#">2013-2014</a></li>
+					</ul>
+				</li>
+				<li class="first">
+					<a href="#" class="mainmenu">What</a>
+				</li>
+			</ul>
+		</div>
+		<div style="background-color:rgba(0,255,237,1);width:100%;height:58px;top:0px;position:relative"></div>
+		<div style="background-color:rgba(0,255,237,1);width:100%;height:200px;top:0px;position:relative"></div>
+		<script>
+		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		
+		  ga('create', 'UA-50474742-1', 'chainhelen.herokuapp.com');
+		  ga('send', 'pageview');
+		
+		</script>
+	</body>
+</html>

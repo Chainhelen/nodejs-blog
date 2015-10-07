@@ -1,0 +1,21 @@
+<% include ./models/Head.html %>
+<style>
+@media screen and (max-width:550px){
+    #main{
+        margin:20px 2% auto 2%;
+        padding:2%;
+        box-shadow:0 5px 25px #000;
+    }
+}
+</style>
+<div id="main">
+    <div class="title">
+        <h1>人生若只如初见</h1>
+        <h1>何事秋风悲画扇</h1>
+    </div>
+    <div class="content">
+    </div>
+    <% var SignatureTime = "2015.06.16" %>
+    <% include ./models/Signature.html %>
+</div>
+<% include ./models/Foot.html %>

@@ -1,0 +1,15 @@
+{
+	"cookie":{
+		"secret" : "ihe",
+	   	"maxAge" : 90000
+	},
+	"session":{
+		"secret" : "ihel",
+    	"dburl": "mongodb://user:password@dburl",
+		"interval":120000
+	},
+	"blog_mongodb":{
+		"dbURL" : "mongodb://user:password@dburl"
+	},
+	"adminuser":["chainhelen"]
+}

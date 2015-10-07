@@ -1,0 +1,697 @@
+<% include ./models/Head.html %>
+    <div id="main">
+        <div class="title">
+            <h1>lcx for linux</h1>
+        </div>
+        <div class="content">
+            <div class="small-title"><p>代码:</p></div>
+            <div class="small-content"><p>可以linux系统做端口映射的程序</p></div>
+            <div style="clear:both"></div>
+            <div class="left-content">
+                <div class="bli">
+                <pre><!--{-->
+                    <code class="cpp">
+#include &lt;sys/time.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/socket.h&gt;
+#include &lt;string.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;arpa/inet.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;netdb.h&gt;
+
+#define VERSION &quot;2.2&quot;
+#define TIMEOUT 300
+#define max(a,b) (a)&gt;(b)?(a):(b)
+#define MAXSIZE 10240
+#define HOSTLEN 40
+#define CONNECT_NUMBER 5
+
+/* define function here */
+void usage(char *s);
+void transdata(int fd1,int fd2);
+void closeallfd(int);
+void makelog(char *buffer,int length);
+int testifisvalue(char *str);
+int bind2conn(int port1,char *host,int port2);
+int bind2bind(int port1,int port2);
+int conn2conn(char *host1,int port1,char *host2,int port2);
+int create_socket();
+int create_serv(int sockfd,int port);
+int client_connect(int sockfd,char* server,int port);
+
+/* define GLOBAL varible here */
+extern int errno;
+FILE *fp;
+
+main(int argc,char **argv)
+{
+    char **p;
+    char host1[HOSTLEN],host2[HOSTLEN];
+    int port1=0,port2=0,method=0;
+    int length;
+    char *logfile=NULL;
+
+    p=argv;
+    memset(host1,0,HOSTLEN);
+    memset(host2,0,HOSTLEN);
+    while(*p)
+    {
+        if(strcmp(*p,&quot;-v&quot;)==0)
+        {
+            printf(&quot;Socket data transport tool.\r\nVersion:%s\r\n&quot;,VERSION);
+            p++;
+            continue;
+        }
+        if(strcmp(*p,&quot;-h1&quot;)==0)
+        {
+            if(testifisvalue(*(p+1))==1)
+            {
+                length=(strlen(*(p+1))&gt;HOSTLEN-1)?HOSTLEN-1:strlen(*(p+1));
+                strncpy(host1,*(++p),length);
+            }
+            p++;
+            continue;
+        }
+        if(strcmp(*p,&quot;-h2&quot;)==0)
+        {
+            if(testifisvalue(*(p+1))==1)
+            {
+                length=(strlen(*(p+1))&gt;HOSTLEN-1)?HOSTLEN-1:strlen(*(p+1));
+                strncpy(host2,*(++p),length);
+            }
+            p++;
+            continue;
+        }
+        if(strcmp(*p,&quot;-p1&quot;)==0)
+        {
+            if(testifisvalue(*(p+1))==1)
+                port1=atoi(*(++p));
+            p++;
+            continue;
+        }
+        if(strcmp(*p,&quot;-p2&quot;)==0)
+        {
+            if(testifisvalue(*(p+1))==1)
+                port2=atoi(*(++p));
+            p++;
+            continue;
+        }
+        if(strcmp(*p,&quot;-m&quot;)==0)
+        {
+            if(testifisvalue(*(p+1))==1)
+                method=atoi(*(++p));
+            p++;
+            continue;
+        }
+        if(strcmp(*p,&quot;-log&quot;)==0)
+        {
+            if(testifisvalue(*(p+1))==1)
+                logfile=*(++p);
+            else
+            {
+                printf(&quot;[ERROR]:must supply logfile name\r\n&quot;);
+                exit(0);
+            }
+            p++;
+            continue;
+        }
+        p++;
+    }
+    signal(SIGCLD,SIG_IGN);
+    signal(SIGINT,&amp;closeallfd);
+    if(logfile !=NULL)
+    {
+        fp=fopen(logfile,&quot;a&quot;);
+        if(fp == NULL )
+        {
+            perror(&quot;open logfile&quot;);
+            exit(0);
+        }
+    }
+    makelog(&quot;######################## start ################\r\n&quot;,49);
+    switch(method)
+    {
+    case 0:
+        usage(argv[0]);
+        break;
+    case 1:
+        if((port1==0) || (port2==0))
+        {
+            printf(&quot;[ERROR]:must supply PORT1 and PORT2.\r\n&quot;);
+            break;
+        }
+        if(strlen(host2)==0)
+        {
+            printf(&quot;[ERROR]:must supply HOST2.\r\n&quot;);
+            break;
+        }
+        bind2conn(port1,host2,port2);
+        break;
+    case 2:
+        if((port1==0) || (port2==0))
+        {
+            printf(&quot;[ERROR]:must supply PORT1 and PORT2.\r\n&quot;);
+            break;
+        }
+        bind2bind(port1,port2);
+        break;
+    case 3:
+        if((port1==0) || (port2==0))
+        {
+            printf(&quot;[ERROR]:must supply PORT1 and PORT2.\r\n&quot;);
+            break;
+        }
+        if(strlen(host1)==0)
+        {
+            printf(&quot;[ERROR]:must supply HOST1.\r\n&quot;);
+            break;
+        }
+        if(strlen(host2)==0)
+        {
+            printf(&quot;[ERROR]:must supply HOST2.\r\n&quot;);
+            break;
+        }
+        conn2conn(host1,port1,host2,port2);
+        break;
+    default:
+        usage(argv[0]);
+    }
+    closeallfd(0);
+}
+
+int testifisvalue(char *str)
+{
+    if(str == NULL )
+        return(0);
+    if(str[0]==&#39;-&#39;)
+        return(0);
+    return(1);
+}
+
+void usage(char *s)
+{
+    printf(&quot;Socket data transport tool\r\n&quot;);
+    printf(&quot;by bkbll(bkbll@cnhonker.net)\r\n\r\n&quot;);
+    printf(&quot;Usage:%s -m method [-h1 host1] -p1 port1 [-h2 host2] -p2 port2 [-v] [-log filename]\r\n&quot;,s);
+    printf(&quot; -v: version\r\n&quot;);
+    printf(&quot; -h1: host1\r\n&quot;);
+    printf(&quot; -h2: host2\r\n&quot;);
+    printf(&quot; -p1: port1\r\n&quot;);
+    printf(&quot; -p2: port2\r\n&quot;);
+    printf(&quot; -log: log the data\r\n&quot;);
+    printf(&quot; -m: the action method for this tool\r\n&quot;);
+    printf(&quot; 1: listen on PORT1 and connect to HOST2:PORT2\r\n&quot;);
+    printf(&quot; 2: listen on PORT1 and PORT2\r\n&quot;);
+    printf(&quot; 3: connect to HOST1:PORT1 and HOST2:PORT2\r\n&quot;);
+    
+    closeallfd(0);
+}
+
+int bind2conn(int port1,char *host,int port2)
+{
+    int sockfd,sockfd1,sockfd2;
+    struct sockaddr_in remote;
+    int size;
+    int pid;
+    char buffer[1024];
+
+    memset(buffer,0,1024);
+    if((sockfd=create_socket())==0) 
+        exit(0);
+    if(create_serv(sockfd,port1)==0)
+    {
+        close(sockfd1);
+        exit(0);
+    }
+    size=sizeof(struct sockaddr);
+    while(1)
+    {
+        printf(&quot;waiting for response.........\n&quot;);
+        if((sockfd1=accept(sockfd,(struct sockaddr *)&amp;remote,(socklen_t *)&amp;size))&lt;0)
+        {
+            perror(&quot;accept error\n&quot;);
+            continue;
+        }
+        printf(&quot;accept a client from %s:%d\n&quot;,inet_ntoa(remote.sin_addr),ntohs(remote.sin_port));
+        if((sockfd2=create_socket())==0)
+        {
+            close(sockfd1);
+            continue;
+        }
+        printf(&quot;make a connection to %s:%d....&quot;,host,port2);
+        fflush(stdout);
+        if(client_connect(sockfd2,host,port2)==0)
+        {
+            close(sockfd2);
+            sprintf(buffer,&quot;[SERVER]connection to %s:%d error\r\n&quot;,host,port2);
+            write(sockfd1,buffer,strlen(buffer));
+            memset(buffer,0,1024);
+            close(sockfd1);
+            continue;
+        }
+        printf(&quot;ok\r\n&quot;);
+        pid=fork();
+        if(pid==0) transdata(sockfd1,sockfd2);
+        // sleep(2);
+        close(sockfd1);
+        close(sockfd2);
+    }
+}
+
+int bind2bind(int port1,int port2)
+{
+    int fd1,fd2,sockfd1,sockfd2;
+    struct sockaddr_in client1,client2;
+    int size1,size2;
+    int pid;
+    
+    if((fd1=create_socket())==0) 
+        exit(0);
+    if((fd2=create_socket())==0) 
+        exit(0);
+    printf(&quot;binding port %d......&quot;,port1);
+    fflush(stdout);
+    if(create_serv(fd1,port1)==0)
+    {
+        close(fd1);
+        exit(0);
+    }
+    printf(&quot;ok\r\n&quot;);
+    printf(&quot;binding port %d......&quot;,port2);
+    fflush(stdout);
+    if(create_serv(fd2,port2)==0)
+    {
+        close(fd2);
+        exit(0);
+    }
+    printf(&quot;ok\r\n&quot;);
+    size1=size2=sizeof(struct sockaddr);
+    while(1)
+    {
+        printf(&quot;waiting for response on port %d.........\n&quot;,port1);
+        if((sockfd1=accept(fd1,(struct sockaddr *)&amp;client1,(socklen_t *)&amp;size1))&lt;0)
+        {
+            perror(&quot;accept1 error&quot;);
+            continue;
+        }
+        printf(&quot;accept a client on port %d from %s,waiting another on port %d....\n&quot;,port1,inet_ntoa(client1.sin_addr),port2);
+        if((sockfd2=accept(fd2,(struct sockaddr *)&amp;client2,(socklen_t *)&amp;size2))&lt;0)
+        {
+            perror(&quot;accept2 error&quot;);
+            close(sockfd1);
+            continue;
+        }
+        printf(&quot;accept a client on port %d from %s\n&quot;,port2,inet_ntoa(client2.sin_addr));
+        pid=fork();
+        if(pid==0) transdata(sockfd1,sockfd2);
+        //sleep(2);
+        close(sockfd1);
+        close(sockfd2);
+    }
+}
+
+int conn2conn(char *host1,int port1,char *host2,int port2)
+{
+    int sockfd1,sockfd2;
+    int pid;
+    fd_set fds;
+    int l;
+    int result;
+    char buffer[MAXSIZE];
+    
+    while(1)
+    {
+        if((sockfd1=create_socket())==0) 
+            exit(0);
+        if((sockfd2=create_socket())==0) 
+            exit(0);
+        printf(&quot;[+] make a connection to %s:%d....\r\n&quot;,host1,port1);
+        fflush(stdout);
+        if(client_connect(sockfd1,host1,port1)==0)
+        {
+            printf(&quot;[-] connect to host1 failed\r\n&quot;);
+            close(sockfd1);
+            close(sockfd2);
+            continue;
+        }
+        printf(&quot;[+] host1 connected\r\n&quot;);
+        l=0;
+        memset(buffer,0,MAXSIZE);
+        //fixed by Twi1ight 2012.09.12
+        while(1)
+        {
+            FD_ZERO(&amp;fds);
+            FD_SET(sockfd1, &amp;fds);
+            if (select(sockfd1+1, &amp;fds, NULL, NULL, NULL) &lt; 0 ) 
+            {
+                if (errno == EINTR) continue;
+                break;
+            }
+        
+            if (FD_ISSET(sockfd1, &amp;fds)) 
+            {
+                l=read(sockfd1, buffer, MAXSIZE);
+                break;
+            }
+            sleep(5);
+        }
+        if(l&lt;=0) 
+        { 
+            printf(&quot;[-] there is a error...Create a new connection.\r\n&quot;);
+            continue;
+        }
+        while(1)
+        {
+            printf(&quot;[+] make a connection to %s:%d....\r\n&quot;,host2,port2);
+            fflush(stdout);
+            if(client_connect(sockfd2,host2,port2)==0)
+            {
+                printf(&quot;[-] connect to host2 failed\r\n&quot;);
+                close(sockfd1);
+                close(sockfd2);
+                continue;
+            }
+            if(write(sockfd2,buffer,l) &lt; 0)
+            { 
+                printf(&quot;[-] send failed.\r\n&quot;);
+                continue;
+            }
+            l=0;
+            memset(buffer,0,MAXSIZE);
+            break;
+        }
+        printf(&quot;[+] all hosts connected!\r\n&quot;);
+        pid=fork();
+        if(pid==0) transdata(sockfd1,sockfd2);
+        //sleep(2);
+        close(sockfd1);
+        close(sockfd2);
+    }
+}
+
+void transdata(int fd1,int fd2)
+{
+    struct timeval timeset;
+    fd_set readfd,writefd;
+    int result,i=0;
+    char read_in1[MAXSIZE],send_out1[MAXSIZE];
+    char read_in2[MAXSIZE],send_out2[MAXSIZE];
+    int read1=0,totalread1=0,send1=0;
+    int read2=0,totalread2=0,send2=0;
+    int sendcount1,sendcount2;
+    int maxfd;
+    struct sockaddr_in client1,client2;
+    int structsize1,structsize2;
+    char host1[20],host2[20];
+    int port1=0,port2=0;
+    char tmpbuf1[100],tmpbuf2[100];
+
+    memset(host1,0,20);
+    memset(host2,0,20);
+    memset(tmpbuf1,0,100);
+    memset(tmpbuf2,0,100);
+    if(fp!=NULL)
+    {
+        structsize1=sizeof(struct sockaddr);
+        structsize2=sizeof(struct sockaddr);
+        if(getpeername(fd1,(struct sockaddr *)&amp;client1,(socklen_t *)&amp;structsize1)&lt;0)
+        {
+            strcpy(host1,&quot;fd1&quot;);
+        }
+        else
+        {
+            printf(&quot;got,ip:%s,port:%d\r\n&quot;,inet_ntoa(client1.sin_addr),ntohs(client1.sin_port));
+            strcpy(host1,inet_ntoa(client1.sin_addr));
+            port1=ntohs(client1.sin_port);
+        }
+        if(getpeername(fd2,(struct sockaddr *)&amp;client2,(socklen_t *)&amp;structsize2)&lt;0)
+        {
+            strcpy(host2,&quot;fd2&quot;);
+        }
+        else
+        {
+            printf(&quot;got,ip:%s,port:%d\r\n&quot;,inet_ntoa(client2.sin_addr),ntohs(client2.sin_port));
+            strcpy(host2,inet_ntoa(client2.sin_addr));
+            port2=ntohs(client2.sin_port);
+        }
+        sprintf(tmpbuf1,&quot;\r\n########### read from %s:%d ####################\r\n&quot;,host1,port1);
+        sprintf(tmpbuf2,&quot;\r\n########### reply from %s:%d ####################\r\n&quot;,host2,port2);
+    }
+    
+    maxfd=max(fd1,fd2)+1;
+    memset(read_in1,0,MAXSIZE);
+    memset(read_in2,0,MAXSIZE);
+    memset(send_out1,0,MAXSIZE);
+    memset(send_out2,0,MAXSIZE);
+    
+    timeset.tv_sec=TIMEOUT;
+    timeset.tv_usec=0;
+    while(1)
+    {
+        FD_ZERO(&amp;readfd);
+        FD_ZERO(&amp;writefd);
+        
+        FD_SET(fd1,&amp;readfd);
+        FD_SET(fd1,&amp;writefd);
+        FD_SET(fd2,&amp;writefd);
+        FD_SET(fd2,&amp;readfd);
+        
+        result=select(maxfd,&amp;readfd,&amp;writefd,NULL,&amp;timeset);
+        if((result&lt;0) &amp;&amp; (errno!=EINTR))
+        {
+            perror(&quot;select error&quot;);
+            break;
+        }
+        else if(result==0)
+        {
+            printf(&quot;time out\n&quot;);
+            break;
+        }
+        if(FD_ISSET(fd1,&amp;readfd))
+        {
+            /* 不能超过MAXSIZE-totalread1,不然send_out1会溢出 */
+            if(totalread1&lt;MAXSIZE)
+            {
+                read1=read(fd1,read_in1,MAXSIZE-totalread1);
+                if(read1==0) break;
+                if((read1&lt;0) &amp;&amp; (errno!=EINTR))
+                {
+                    perror(&quot;read data error&quot;);
+                    break;
+                }
+                memcpy(send_out1+totalread1,read_in1,read1);
+                makelog(tmpbuf1,strlen(tmpbuf1));
+                makelog(read_in1,read1);
+                totalread1+=read1;
+                memset(read_in1,0,MAXSIZE);
+            }
+        }
+        if(FD_ISSET(fd2,&amp;writefd))
+        {
+            int err=0;
+            sendcount1=0;
+            while(totalread1&gt;0)
+            {
+                send1=write(fd2,send_out1+sendcount1,totalread1);
+                if(send1==0)break;
+                if((send1&lt;0) &amp;&amp; (errno!=EINTR))
+                {
+                    perror(&quot;unknow error&quot;);
+                    err=1;
+                    break;
+                }
+                if((send1&lt;0) &amp;&amp; (errno==ENOSPC)) break;
+                sendcount1+=send1;
+                totalread1-=send1;
+            }
+            if(err==1) break;
+            if((totalread1&gt;0) &amp;&amp; (sendcount1&gt;0))
+            {
+                /* 移动未发送完的数据到开始 */
+                memcpy(send_out1,send_out1+sendcount1,totalread1);
+                memset(send_out1+totalread1,0,MAXSIZE-totalread1);
+            }
+            else
+                memset(send_out1,0,MAXSIZE);
+        }
+        if(FD_ISSET(fd2,&amp;readfd))
+        {
+
+            if(totalread2&lt;MAXSIZE)
+            {
+                read2=read(fd2,read_in2,MAXSIZE-totalread2);
+                if(read2==0)break;
+                if((read2&lt;0) &amp;&amp; (errno!=EINTR))
+                {
+                    perror(&quot;read data error&quot;);
+                    break;
+                }
+                memcpy(send_out2+totalread2,read_in2,read2);
+                makelog(tmpbuf2,strlen(tmpbuf2));
+                makelog(read_in2,read2);
+                totalread2+=read2;
+                memset(read_in2,0,MAXSIZE);
+            }
+        }
+        if(FD_ISSET(fd1,&amp;writefd))
+        {
+            int err2=0;
+            sendcount2=0;
+            while(totalread2&gt;0)
+            {
+                send2=write(fd1,send_out2+sendcount2,totalread2);
+                if(send2==0)break;
+                if((send2&lt;0) &amp;&amp; (errno!=EINTR))
+                {
+                    perror(&quot;unknow error&quot;);
+                    err2=1;
+                    break;
+                }
+                if((send2&lt;0) &amp;&amp; (errno==ENOSPC)) break;
+                sendcount2+=send2;
+                totalread2-=send2;
+            }
+            if(err2==1) 
+                break;
+            if((totalread2&gt;0) &amp;&amp; (sendcount2 &gt; 0))
+            {
+                /* 移动未发送完的数据到开始 */
+                memcpy(send_out2,send_out2+sendcount2,totalread2);
+                memset(send_out2+totalread2,0,MAXSIZE-totalread2);
+            }
+            else
+                memset(send_out2,0,MAXSIZE);
+        }
+    }
+    
+    close(fd1);
+    close(fd2);
+    printf(&quot;ok,I closed the two fd\r\n&quot;);
+    //exit(0);
+}
+
+void closeallfd(int n)
+{
+    int i;
+    printf(&quot;Let me exit...&quot;);
+    fflush(stdout);
+    for(i=3;i&lt;256;i++)
+    {
+        close(i);
+    }
+    if(fp != NULL)
+    {
+        fprintf(fp,&quot;exited\r\n&quot;);
+        fclose(fp);
+    }
+    printf(&quot;all overd\r\n&quot;);
+    exit(0);
+}
+
+void makelog(char *buffer,int length)
+{
+    if(fp !=NULL)
+    {
+        //fprintf(fp,&quot;%s&quot;,buffer);
+        write(fileno(fp),buffer,length);
+        fflush(fp);
+    }
+}
+
+int create_socket()
+{
+    int sockfd;
+    
+    sockfd=socket(AF_INET,SOCK_STREAM,0);
+    if(sockfd&lt;0)
+    {
+        perror(&quot;create socket error&quot;);
+        return(0);
+    }
+    return(sockfd);
+}
+
+int create_serv(int sockfd,int port)
+{
+    struct sockaddr_in srvaddr;
+    int on=1;
+    
+    bzero(&amp;srvaddr,sizeof(struct sockaddr));
+    srvaddr.sin_port=htons(port);
+    srvaddr.sin_family=AF_INET;
+    srvaddr.sin_addr.s_addr=htonl(INADDR_ANY);
+    
+    setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&amp;on,sizeof(on)); //so I can rebind the port
+    if(bind(sockfd,(struct sockaddr *)&amp;srvaddr,sizeof(struct sockaddr))&lt;0)
+    {
+        perror(&quot;error&quot;);
+        return(0);
+    }
+    if(listen(sockfd,CONNECT_NUMBER)&lt;0)
+    {
+        perror(&quot;listen error\n&quot;);
+        return(0);
+    }
+    return(1);
+}
+
+int client_connect(int sockfd,char* server,int port)
+{
+    struct sockaddr_in cliaddr;
+    struct hostent *host;
+    
+    if(!(host=gethostbyname(server)))
+    {
+        printf(&quot;gethostbyname(%s) error:%s\n&quot;,server,strerror(errno));
+        return(0);
+    }
+    
+    bzero(&amp;cliaddr,sizeof(struct sockaddr));
+    cliaddr.sin_family=AF_INET;
+    cliaddr.sin_port=htons(port);
+    cliaddr.sin_addr=*((struct in_addr *)host-&gt;h_addr);
+    
+    if(connect(sockfd,(struct sockaddr *)&amp;cliaddr,sizeof(struct sockaddr))&lt;0)
+    {
+        perror(&quot;[-] error&quot;);
+        return(0);
+    }
+    return(1);
+}
+                    </code>
+                </pre><!--}-->
+                </div>
+            </div>
+            <p class="content-from-link">来源于<a target="_blank" href="http://www.hackblog.cn/post/62.html">hackblog</a></p>
+        </div>
+        <div class="content">
+            <div class="small-title"><p>编译:</p></div>
+            <div class="small-content"><p>c语言程序</p></div>
+            <div class="left-content">
+                 1.<p>将上面的内容复制粘贴在名为portmap.c</p>
+                 2.<p>g++ portmap.c -o portmap</p>
+                 3.<p>运行./portmap 会出现程序的help</p>
+                 </br>
+             </div>
+            <div style="clear:both"></div>
+        </div>
+        <% var SignatureTime = "2015.06.05" %>
+        <% include ./models/Signature.html %>
+    </div>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <script src="/javascripts/jquery.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+                $('pre code').each(function(i, block) {
+                    hljs.highlightBlock(block);
+                });
+        });
+    </script>
+<% include ./models/Foot.html %>

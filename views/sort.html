@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<link href="stylesheets/sort/sort.css" rel="stylesheet" type="text/css"/>
+	</head>
+	<body>
+		<div class="container">
+				<canvas id="myCanvas"  width="450" height="350" style="border:0px solid #d3d3d3;">your browser does not support the canvas tag</canvas>
+			<div class="set">
+				<button type="button" id="quick-sort">快速排序</button>
+				<button type="button" id="bubble_sort">冒泡排序</button>
+				<div>
+					<label><input type="radio" name="count" value="20"/>20</label>
+					<label><input type="radio" name="count" value="25" checked="checked"/>25</label>
+					<label><input type="radio" name="count" value="40"/>40</label>
+					<label><input type="radio" name="count" value="80"/>80</label>
+					<label><input type="radio" name="count" value="100"/>100</label>
+				</div>
+				<div id="info">
+					<p id="info_blank"></p>
+				</div>
+				<div>
+					<p><strong>温馨提示：</strong>js绘图帧数过快，浏览器标签页切换可能会导致绘图不稳定，运行时请专注本页面（案例：100组数据冒泡排序时）</p>
+				</div>
+			</div>
+		</div>
+	</body>
+	<script type="text/javascript" src="/javascripts/sort/sort.js"></script>
+	<script type="text/javascript" src="/javascripts/ga.js"></script>
+</html>

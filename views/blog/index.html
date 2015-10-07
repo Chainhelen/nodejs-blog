@@ -1,0 +1,8 @@
+<% include ./models/Head.html %>
+<div id="main">
+    <div class="title">
+        <h1>welcome to my blog</h1>
+    </div>
+        <% blogitems.forEach(function(item){ %>
+        <% include ./models/IndexListBlog.html %>
+        <% }) %>

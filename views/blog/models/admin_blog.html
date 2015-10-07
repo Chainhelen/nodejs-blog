@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<style>
+			.control_button{
+				float:left;
+				width:20%;
+			  	margin-left:5%;
+			}
+			.look_blog {
+				display: block;
+				margin-top:20px;
+				margin-bottom: 10px;
+				width:50px;
+			}
+			.add_blog {
+				display: block;
+				margin-bottom: 10px;
+				width:50px;
+			}
+			.logout_button {
+				display: block;
+				margin-bottom: 10px;
+				width:50px;
+			}
+			.control_show{
+				float:left;
+				width:75%;
+			}
+			.content{
+				width:80%;
+				height:300px;
+			}
+			.block_show{
+				margin-bottom:5px;
+			}
+			.block_div{
+				float:left;
+				width:30%;
+			}
+			.block_input{
+				float:left;
+				width:40%;
+			}
+			.clear{
+				clear:both;
+			}
+			@media (max-width:768px){
+				.block_div{
+					float:left;
+					width:10%;
+					margin:0 0 0 15%;
+				}
+				.block_input{
+					float:left;
+					width:80%;
+					margin:0 10% 0 10%;
+				}
+				body{
+					text-align:center;
+				}
+				.control_button{
+					float:none;
+					display:inline;
+					margin:0;
+				}
+				.look_blog{
+					display:inherit;
+				}
+				.add_blog{
+					display:inherit;
+				}
+				.logout_button{
+					display:inherit;
+				}
+				.control_show{
+					float:none;
+					width:100%;
+				}
+				.content{
+					display:block;
+					margin:0 10% 10px 10%;
+					width:80%;
+				}
+			}
+		</style>
+    </head>
+    <body>
+		<div class="control_button">
+			<button class="look_blog">look</button>
+			<button class="add_blog">add</button>
+			<button class="logout_button">logout</button>
+		</div>
+		<form method="post" onsubmit="return checkForm()" action="/admin_blog/add">
+			<div class="control_show">
+				<div class="block_show">
+					<div class="block_div">title:</div>
+					<input class="block_input" name="title"></input>
+					<div class="clear"></div>
+				</div>
+				<div class="block_show">
+					<div class="block_div">author:</div>
+					<% if("undefined" == typeof(author)){ %>
+						<input class="block_input" readonly="true" value="(please input a name)" name="author"/>
+					<% }else{ %>
+						<input class="block_input" readonly="true" value=<%= author %> name="author"/>
+					<% } %>
+					<div class="clear"></div>
+				</div>
+				<div class="block_show">
+					<div class="block_div">date:</div>
+					<input class="block_input"  id="date" name="date"/>
+					<div class="clear"></div>
+				</div>
+				<div class="block_show">
+					<div class="block_div">type:</div>
+					<select class="block_input" name="type">
+					<% for(i in filetype) {%>
+						<option><%= filetype[i] %></option>
+					<% } %>
+					</select>
+					<div class="clear"></div>
+				</div>
+	
+				<div>content:</div>
+				<textarea class="content" name="content"></textarea>
+				<input type="submit" value="sumbit"/>
+				<div id="alarm" style="display:none"></div>
+			</div>
+		</form>
+	</body>
+	<script src="/javascripts/jquery.js"></script>
+	<script>
+		function initTime(){
+			var myDate = new Date();
+			var myTimeVaule = myDate.getFullYear() + "." + (myDate.getMonth() + 1) + "." + myDate.getDate();
+			$("#date").attr("value", myTimeVaule);
+		}
+		function checkForm(){
+			var alarm = "";
+			var article = $("input[name='title']").val();
+			var author = $("input[name='author']").val();
+			var date = $("input[name='date']").val();
+			var content = $("textarea[name='content']").val();
+			var type = $("select[name='type']").find("option:selected").text();
+
+			if("undefined" == typeof(article) || "" == article){
+				alarm += "no article;"
+			}
+			if("undefined" == typeof(author) || "" == author){
+				alarm += "no author;"
+			}
+			if("undefined" == typeof(date) || "" == date){
+				alarm += "no date;"
+			}
+			if("undefined" == typeof(content) || "" == content){
+				if(type != "local_allfiles"){
+					alarm += "no content;"
+				}
+			}
+			if("" == alarm){
+				if(type == "local_allfiles"){
+					$("textarea[name='content']").val("");
+				}
+				return true;
+			}
+			$("#alarm").css({display:"block"});
+			$("#alarm").html("submit failed : " + alarm);
+			return false;
+		}
+		function initContent(){
+			$("select[name='type']").change(function(){
+				var type = $("select[name='type']").find("option:selected").text();
+				if(type == "local_allfiles"){
+					$("textarea[name='content']").css({"display":"none"});
+				}else{
+					$("textarea[name='content']").css({"display":"inline"});
+				}
+			});
+		}
+		function initFixContent(){
+			$('.look_blog').click(function(){
+				var alarm = "";
+				var author = $("input[name='author']").val();
+				var date = $("input[name='date']").val();
+				var content = $("textarea[name='content']").val();
+				var type = $("select[name='type']").find("option:selected").text();
+
+				var article = $("input[name='title']").val();
+				var aj = $.ajax({  
+					url:'/json/blog/',// 跳转到 action  
+				    data:{  
+						title: article
+				    },  
+				    type:'post',  
+				    cache:false,  
+				    dataType:'json',  
+				    success:function(data) {  
+				    	console.log(data);  
+						if("undefined" == typeof(data) || "undefined" == data.content){
+							alarm += "no content or title\n";
+						}else{
+							if(data.author != author){
+								alarm += "db's author is " + data.author + "\n";
+							}
+							if(data.date != date){
+								alarm += "db's date is " + data.date + "\n";
+							}
+							if(data.type != type){
+								alarm += "db's type is " + data.type + "\n";
+							}
+							$("textarea[name='content']").val(data.content);
+							$("input[name='date']").val(data.date);
+						}
+						if("" != alarm){
+							$("#alarm").css({display:"block"});
+							$("#alarm").html("get content failed : " + alarm);
+						}else{
+							$("#alarm").css({display:"none"});
+						}
+				    },  
+				    error : function() {  
+						alert("无相应文章");
+				    }  
+				 });
+			})
+		}
+		$(document).ready(function(){
+			initContent();
+			initFixContent();
+			initTime();
+		})
+	</script>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE>
+<html>
+	<head>
+		<script src="http://s1.bdstatic.com/r/www/cache/static/jquery/jquery-1.10.2.min_f2fb5194.js"></script>
+		<script>
+			function move(){
+				$($('.x')[0]).animate({'left':'1000px'},3000);
+				$($('.x')[0]).animate({'left':'0px'},3000);
+				$($('.x')[0]).animate({'top':'600px'},3000);
+				$($('.x')[0]).animate({'top':'0px'},3000);
+			}
+			function out(){
+					$($('.x')[0]).fadeOut(3000);
+				}
+			$(document).ready(function(){
+				move();
+				setTimeout(out, 9000);
+			});
+		</script>
+	</head>
+	<body>
+		<div  class="x" style="position:absolute">
+			<h1>(404错误)对不起,我不会告诉你,这里没有你想找的东西</h1>
+		</div>
+		<div class="x">
+			<h1></h1>
+		</div>
+	</body>
+
+</html>

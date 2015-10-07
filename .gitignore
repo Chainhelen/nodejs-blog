@@ -1,0 +1,11 @@
+/node_modules
+node_modules
+*.swp
+Procfile
+/public/images/*
+/public/javascript/*
+/public/stylesheets/*
+/source
+source
+/view/welcome.html
+/view/cv.html

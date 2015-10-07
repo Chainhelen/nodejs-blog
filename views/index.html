@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chainhelen</title>
+		<link rel='stylesheet' href='/stylesheets/style.css' />
+		<link rel='stylesheet' href='/stylesheets/spinner.css'/>
+		<style>
+			body{
+				background-color:#10A296;
+                overflow-x:hidden;
+                min-width:927px;
+			}
+			.title{
+				color:white;
+				font-size:4em;
+			}
+			h1{
+				color:white;
+				letter-spacing: 8px;
+			}
+			.hide{
+				opacity: 1;	
+			}
+			.container{
+				position:absolute;
+				width:100%;
+				text-align:center;
+				margin-top:-5%;
+				z-index: -1;
+			}
+			.loader{
+				/*opacity: 0;*/
+			}
+			.loader-container{
+				width:240px;
+				height:240px;
+				margin:0 auto;
+			}
+		</style>
+		<script src="javascripts/jquery.js"></script>
+		<script>
+			$(document).ready(function(){
+                function alertHowToPlay(){
+                    $("#foo").css({"color":"red"});
+                    $("#foo").html("<h1>另外可以查看:hacking.pub/blog/</h1>");
+                }
+				$("button").click(function(){
+					$(".container").css({"z-index":1});
+					$(".loader-container").html("<div class='loader'>Loading...</div>");
+					$(".loader").css({"opacity":1});
+                    setTimeout(alertHowToPlay, 1000);
+				})
+
+				$("#togglepassword").click(function(){
+					if($("#togglepassword")[0].value == "显示密码"){
+						$("#pass").css({"display":"none"});
+						$("#showpass").css({"display":""});
+						$("#showpass")[0].value = $("#pass")[0].value;
+						$("#togglepassword")[0].value = "隐藏密码";
+					}
+					else if($("#togglepassword")[0].value == "隐藏密码"){
+						$("#pass").css({"display":""});
+						$("#showpass").css({"display":"none"});
+						$("#pass")[0].value = $("#showpass")[0].value;
+						$("#togglepassword")[0].value = "显示密码";
+					}
+				});
+			});
+			function submitFunc(){
+					if($("#togglepassword")[0].value == "隐藏密码"){
+						$("#pass")[0].value = $("#showpass")[0].value;
+					}
+                    console.log("是的，就是逗你玩");
+					return true;
+				}
+		</script>
+		<script>
+	var _$=["\u6709\u4e9b\u4e0d\u9700\u8981\u6743\u9650\u5c31\u80fd\u770b\u7684\x3b\u4f8b\u5982\uff1a","\x6d\x79\x45\x6e\x67\x6c\x69\x73\x68\x53\x6c\x69\x64\x65","\x6d\x61\x70\x62\x6f\x78","\x62\x61\x69\x64\x75\x6d\x61\x70","\x64\x6f\x77\x6e\x6c\x6f\x61\x64\x73","\u4ee5\u53ca\u7b49\u7b49"];console.log( _$[0]);console.log( _$[1]);console.log( _$[2]);console.log( _$[3]);console.log( _$[4]);console.log( _$[5]);
+		</script>
+  </head>
+  <body>
+		<h1 class="title"><%= title %></h1>
+		<div class="container">
+			<div class="loader-container">
+			</div>
+		</div>
+		<h1><%= think %></h1>
+		<div id="foo"></div>
+        </br>
+		<form class="hide" method="post" onsubmit="return submitFunc()">
+				<label for="username">用户名</label>
+				<input type="text" name="username" value="">
+				<label for="password">密  码</label>
+				<input id="pass" type="password" name="password" value="" style="display:">
+				<input id="showpass" type="text" value="admin" style="display:none">
+
+				<button type="submit" id="submit">登陆</button>
+				<input type="button" value="显示密码" id="togglepassword"></input>
+		</form>
+        <h2 id="designer" style="margin-top:20%;float:right;color:rgb(255,255,255)">by chainhelen</h2>
+  </body>
+</html>
