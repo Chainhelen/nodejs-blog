@@ -16,10 +16,11 @@ var path = require('path');
 var ejs = require('ejs');
 var fs = require('fs');
 var SessionStore = require("session-mongoose")(express);
+var ccap = require('./routes/ccap');
 
 var app = express();
 var server = require('http').createServer(app);
-var io = require('socket.io').listen(server);
+var io = require('socket.io')(server);
 var config=require('./config.json')
 
 //chat
@@ -35,7 +36,7 @@ app.set('view engine', 'html');
 //app.use(express.favicon());
 
 app.use(express.favicon(path.join(__dirname, '/public/images/favicon.ico')));
-//app.use(express.logger('dev'));
+app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
@@ -58,7 +59,7 @@ app.use(express.session({
 app.use(function(req, res, next) {
 	res.locals.user = req.session.user;
 	next();
-})
+});
 
 //change public router to pritor the router
 app.use(express.static(path.join(__dirname, 'public')));
@@ -79,9 +80,12 @@ app.get('/paint', routes.paint);
 app.get('/chat', routes.simple_chat);
 app.get('/sort', routes.sort);
 app.get('/blog/:what?',blog.index);
-
+app.get('/user/:user/:article', blog.user_blog_article);
+app.get('/user/:user', blog.user_blog_index);
+app.get('/ccap',ccap.index);
 app.get(/\/\S+/, routes.indexAuth);
 
+app.get('/admin_blog_index',blog.blog_fix_status);
 app.get('/admin_blog/:what?', blog.admin_get);
 app.post('/admin_blog/:what?', blog.admin_post);
 
@@ -89,6 +93,7 @@ app.get('/', routes.indexone);
 app.post('/', routes.indexpost);
 
 app.post('/json/blog/',blog.json);
+app.post('/json/blog_delete/',blog.blog_delete);
 
 app.get('/welcome', routes.welcome);
 
@@ -104,4 +109,3 @@ app.get('/?*', fourzorefour.one);
 server.listen(app.get('port'), function() {
 	console.log('Express server listening on port ' + app.get('port'));
 });
-

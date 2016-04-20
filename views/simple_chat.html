@@ -6,7 +6,6 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/simple_chat.css">
     <script src="javascripts/jquery.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="javascripts/chat/chat.js"></script>
 </head>
 <body>
     <h1>test chat room</h1>
@@ -16,5 +15,11 @@
         <input type="text" id="input"/>
     </div>
     <div id="content"></div>
+    <script>
+        var target = {};
+        target.port = "<%= target.port %>";
+        target.host = "<%= target.host %>";
+    </script>
+    <script src="javascripts/chat/chat.js"></script>
 </body>
 </html>

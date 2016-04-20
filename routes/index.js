@@ -2,6 +2,8 @@
  * GET home page.
  */
 var blog = require('./blog.js');
+var wsinfo = require('../models/wsInfo.js');
+
 exports.oldindex = function(req, res) {
     res.render('oldindex');
 };
@@ -19,8 +21,16 @@ exports.page = function(req, res) {
 };
 
 exports.simple_chat = function(req, res) {
+    var target = {
+        host:wsinfo.getIpv4(), 
+        port:wsinfo.getPort()
+    };
+    console.log("Debug :");
+    console.log(target);
+
     res.render('simple_chat', {
-        json: req.ip
+        json: req.ip,
+        target: target
     });
 };
 
@@ -68,6 +78,16 @@ exports.indexpost = function(req, res) {
         return ;
     };
 
+	if(!req.body.ccap || !req.session.ccap || req.session.ccap != req.body.ccap){
+		req.session.ccap = null;
+        res.render('index',{
+            title: 'ERROR',
+            think: '需要验证码'
+        });
+        return ;
+	}
+	req.session.ccap = null;
+
     User.findByName(req.body.username, function(err, obj) {
         var crypto = require('crypto');
         var md5 = crypto.createHash('md5');
@@ -89,7 +109,7 @@ exports.indexpost = function(req, res) {
 
         if (req.body.username == user.username && md5.update(req.body.password).digest('hex') == user.password) {
             req.session.user = user;
-            res.redirect('/admin_blog');
+            res.redirect('/admin_blog_index');
             return ;
         }
 

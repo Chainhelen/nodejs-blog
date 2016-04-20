@@ -1,15 +1,18 @@
 {
+    "http":{
+		"port" : "3000"
+	},
 	"cookie":{
-		"secret" : "ihe",
+		"secret" : "chain",
 	   	"maxAge" : 90000
 	},
 	"session":{
-		"secret" : "ihel",
-    	"dburl": "mongodb://user:password@dburl",
+		"secret" : "chain",
+    	"dburl": "mongodb://root:root@ds051838.mongolab.com:51838/cookie",
 		"interval":120000
 	},
 	"blog_mongodb":{
-		"dbURL" : "mongodb://user:password@dburl"
+		"dbURL" : "mongodb://admin:root@ds029257.mongolab.com:29257/blog"
 	},
 	"adminuser":["chainhelen"]
 }

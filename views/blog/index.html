@@ -4,5 +4,21 @@
         <h1>welcome to my blog</h1>
     </div>
         <% blogitems.forEach(function(item){ %>
-        <% include ./models/IndexListBlog.html %>
+			<% if("关于本blog系统" == item.title){ %>
+	    	    <p style="color:red"><%= item.title %>
+			<% }else { %>
+	    	    <p><%= item.title %>
+			<% } %>
+
+
+			<% if("undefined" != typeof(fix) && true == fix) { %>
+				<a href="/admin_blog?title=<%= item.escapetitle %>" target="_blank">-++</a>
+			<% }else {%>
+				<% if("undefined" != typeof(firstshow)) {%>
+					<a href="/blog/<%= item.title %>" target="_blank">-></a>
+				<% }else {%>
+					<a href="/user/<%= username %>/<%= item.title %>" target="_blank">-></a>
+				<% } %>
+			<% } %>
+			</p>
         <% }) %>

@@ -1,10 +1,15 @@
- $(function () {
+(function (target) {
     var content = $('#content');
     var status = $('#status');
     var input = $('#input');
     var myName = false;
 
-    var socket = io.connect('http://chainhelen.herokuapp.com/chat');
+    if("object" != typeof(target) || "undefined" == target.host || "undefined" == target.port){
+        console.log("Debug: target: host port maybe wrong");
+        return;
+    }
+
+    var socket = io.connect('http://' + target.host + ':' + target.port + '/chat');
     socket.on('open',function(){
         status.text('Choose a name:');
     });
@@ -21,7 +26,7 @@
     });
 
     socket.on('message',function(json){
-        var p = '<p><span style="color:'+json.color+';">' + json.author+'</span> @ '+ json.time+ ' : '+json.text+'</p>';
+        var p = '<p><span style="color:'+json.color+';">' + json.author+'</span> @ '+ json.time+ ' : '+html_encode(json.text)+'</p>';
         content.prepend(p);
     });
 
@@ -36,4 +41,17 @@
             }
         }
     });
-});
+    function html_encode(str)   
+    {   
+        var s = "";   
+        if (str.length == 0) return "";   
+        s = str.replace(/&/g, "&gt;");   
+        s = s.replace(/</g, "&lt;");   
+        s = s.replace(/>/g, "&gt;");   
+        s = s.replace(/ /g, "&nbsp;");   
+        s = s.replace(/\'/g, "&#39;");   
+        s = s.replace(/\"/g, "&quot;");   
+            s = s.replace(/\n/g, "<br>");   
+        return s;   
+    }   
+})(target);

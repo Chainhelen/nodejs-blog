@@ -1,0 +1,15 @@
+<% include Head.html %>
+<p>
+	<%= info %>
+</p>
+<% if(currentIsAdminUser) {%>
+	<a href="/blog/<%= title %>">0.查看该blog</a></br>
+	<a href="/blog/">1.查看所有blog</a></br>
+<% } else {%>
+	<a href="/user/<%= username %>/<%= title %>">0.查看该blog</a></br>
+	<a href="/user/<%= username %>/">1.查看所有blog</a></br>
+<% }%>
+<a href="/admin_blog?title=<%= escapetitle %>">2.修改该blog</a></br>
+<a href="/admin_blog_index">3.修改blog列表</a></br>
+
+<% include Foot.html %>

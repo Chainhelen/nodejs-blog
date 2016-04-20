@@ -16,6 +16,7 @@ UserDAO.prototype.save = function(obj, callback) {
 		callback(err);
 	})
 }
+
 UserDAO.prototype.findByName = function(name, callback) {
 	User.findOne({
 		username: name

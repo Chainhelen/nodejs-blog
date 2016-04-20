@@ -60,4 +60,13 @@ BlogDAO.prototype.updateByTitle = function(pTitle, pcontent, callback){
 	});
 }
 
+BlogDAO.prototype.removeByTitleAndAuthor = function(key, callback){
+	Blog.remove({
+		title	: key["title"],
+		author	: key["author"]
+	}, function(e){
+		callback(e);
+	});
+}
+
 module.exports = new BlogDAO();

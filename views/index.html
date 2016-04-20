@@ -36,6 +36,10 @@
 				height:240px;
 				margin:0 auto;
 			}
+			img{
+				position: relative;
+				top:10px;
+			}
 		</style>
 		<script src="javascripts/jquery.js"></script>
 		<script>
@@ -93,6 +97,8 @@
 				<label for="password">密  码</label>
 				<input id="pass" type="password" name="password" value="" style="display:">
 				<input id="showpass" type="text" value="admin" style="display:none">
+				<img src="/ccap">
+				<input name="ccap" value="">
 
 				<button type="submit" id="submit">登陆</button>
 				<input type="button" value="显示密码" id="togglepassword"></input>

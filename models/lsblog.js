@@ -26,9 +26,10 @@ exports.FindDatabaseBlogByAuthor = function(author, callback){
 		DataBaseBlog.findALLByAuthor(author, function(err, obj){
 			if(err || [] == obj){
 				result = [];
-			}
-			for(i in obj){
-				result.push(obj[i]);
+			}else{
+				for(i in obj){
+					result.push(obj[i]);
+				}
 			}
 			callback(result);
 		});

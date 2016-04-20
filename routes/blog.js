@@ -5,7 +5,7 @@ var fs = require('fs');
 var markdown = require('marked');
 var DataBaseBlog = require('../models/blog.js');
 var filetype = ['md', 'html', 'local_allfiles'];
-var config = ('../config.json');
+var config = require('../config.json');
 var adminuser = config.adminuser;
 var users = require('../models/user.js');
 
@@ -98,7 +98,6 @@ exports.user_blog_index = function(req, res, next){
 	users.findByName(req.params.user, function(err, obj){
 		//用户不存在
 		if(err || null == obj){
-	//		res.redirect('/blog/index');
 			next();
 			return ;
 		}
@@ -153,6 +152,31 @@ exports.admin = function(req, res, next){
 	});
 }
 
+exports.blog_fix_status = function(req, res, next){
+	users.findByName(res.locals.user.username, function(err, obj){
+		//用户不存在
+		if(err || null == obj){
+			next();
+			return ;
+		}
+		//用户存在 查找其文章
+		DataBaseBlog.findALLByAuthor(res.locals.user.username, function(err, obj){
+			var result = [];
+			var warrings = "";
+			for(i in obj){
+				obj[i].escapetitle = escape(obj[i].title);
+				result.push(obj[i]);
+			}
+			res.render('blog/index',{
+				username : req.params.user,
+				blogitems : result,
+				warrings : warrings,
+				fix : true
+   	    	});
+		});
+	})
+};
+
 exports.admin_get = function(req, res, next){
 	res.render('blog/models/admin_blog',{
 		filetype: filetype,
@@ -168,7 +192,13 @@ exports.admin_post = function(req, res, next){
 	};
 	DataBaseBlog.findALLByTitleAndAuthor(info, function(err, obj){
 		if(undefined == req.body.type || !isExit(req.body.type, filetype)){
-			res.send("filetype is not right\n");
+			res.render('blog/models/saveOrUpdateBlogInfo.html', {
+				info				: "no filetype",
+				currentIsAdminUser	: isExit(res.locals.user.username, adminuser),
+				username			: res.locals.user.username,
+				title 				: req.body.title,
+				escapetitle			: escape(req.body.title)
+			})
 			res.end();
 			return ;
 		}
@@ -176,10 +206,22 @@ exports.admin_post = function(req, res, next){
 		if(err || 0 == obj.length){
 			DataBaseBlog.saveDocs(req , function(err){
 				if(err){
-					res.send("save failed\n");
+					res.render('blog/models/saveOrUpdateBlogInfo.html', {
+						info				: "save failed",
+						currentIsAdminUser	: isExit(res.locals.user.username, adminuser),
+						username			: res.locals.user.username,
+						title 				: req.body.title,
+						escapetitle			: escape(req.body.title)
+					});
 					res.end();
 				}else{
-					res.send("save successed\n");
+					res.render('blog/models/saveOrUpdateBlogInfo.html', {
+						info				: "save sucessed",
+						currentIsAdminUser	: isExit(res.locals.user.username, adminuser),
+						username			: res.locals.user.username,
+						title 				: req.body.title,
+						escapetitle			: escape(req.body.title)
+					})
 					res.end();
 				}
 				return ;
@@ -187,10 +229,22 @@ exports.admin_post = function(req, res, next){
 		}else{ // update
 			DataBaseBlog.updateByTitle(req.body.title, req.body.content, function(err, number, raw){
 				if(err){
-					res.send("update failed\n");
+					res.render('blog/models/saveOrUpdateBlogInfo.html', {
+						info				: "update failed",
+						currentIsAdminUser	: isExit(res.locals.user.username, adminuser),
+						username			: res.locals.user.username,
+						title 				: req.body.title,
+						escapetitle			: escape(req.body.title)
+					})
 					res.end();
 				}else{
-					res.send("update seccessed\n");
+					res.render('blog/models/saveOrUpdateBlogInfo.html', {
+						info				: "update sucessed",
+						currentIsAdminUser	: isExit(res.locals.user.username, adminuser),
+						username			: res.locals.user.username,
+						title 				: req.body.title,
+						escapetitle			: escape(req.body.title)
+					})
 					res.end();
 				}
 				return ;
@@ -208,6 +262,19 @@ exports.json = function(req, res, next){
 	DataBaseBlog.findALLByTitleAndAuthor(info, function(err, obj){
 		if(obj){
 			res.json(obj[0]);
+		}else{
+			res.json({});
+		}
+	});
+}
+exports.blog_delete = function(req, res, next){
+	var info = {
+		"title" : req.body.title,
+		"author" : res.locals.user.username
+	};
+	DataBaseBlog.removeByTitleAndAuthor(info, function(err){
+		if(err){
+			res.json({"error":err});
 		}else{
 			res.json({});
 		}

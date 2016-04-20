@@ -14,7 +14,7 @@
 				margin-bottom: 10px;
 				width:50px;
 			}
-			.add_blog {
+			.delete_blog {
 				display: block;
 				margin-bottom: 10px;
 				width:50px;
@@ -68,7 +68,7 @@
 				.look_blog{
 					display:inherit;
 				}
-				.add_blog{
+				.delete_blog{
 					display:inherit;
 				}
 				.logout_button{
@@ -89,7 +89,7 @@
     <body>
 		<div class="control_button">
 			<button class="look_blog">look</button>
-			<button class="add_blog">add</button>
+			<button class="delete_blog">delete</button>
 			<button class="logout_button">logout</button>
 		</div>
 		<form method="post" onsubmit="return checkForm()" action="/admin_blog/add">
@@ -197,7 +197,6 @@
 				    cache:false,  
 				    dataType:'json',  
 				    success:function(data) {  
-				    	console.log(data);  
 						if("undefined" == typeof(data) || "undefined" == data.content){
 							alarm += "no content or title\n";
 						}else{
@@ -215,7 +214,7 @@
 						}
 						if("" != alarm){
 							$("#alarm").css({display:"block"});
-							$("#alarm").html("get content failed : " + alarm);
+							$("#alarm").html("warning : " + alarm);
 						}else{
 							$("#alarm").css({display:"none"});
 						}
@@ -226,10 +225,61 @@
 				 });
 			})
 		}
+		function autoInitContent(){
+			var	query = window.location.search.split('&');
+			if(query.length >= 1){
+				if(query[0].split('=').length && query[0].split('=')[0] == '?title'){
+					$("input[name='title']").val(unescape(query[0].split('=')[1]));
+					$('.look_blog').click();
+				}
+			}
+		}
+		function deleteBlog(){
+			var alarm = "";
+			var article = $("input[name='title']").val();
+
+			var aj = $.ajax({  
+				url:'/json/blog_delete/',// 跳转到 action  
+			    data:{  
+					title: article
+			    },  
+			    type:'post',  
+			    cache:false,  
+			    dataType:'json',  
+			    success:function(data) {  
+					if(data["error"]){
+						$("#alarm").css({display:"block"});
+						$("#alarm").html("删除失败,err:",err);
+					}else{
+						$("#alarm").css({display:"block"});
+						$("#alarm").html("已经删除成功", article);
+
+						$("input[name='title']").val("");
+						$("input[name='author']").val("");
+						$("input[name='date']").val("");
+						$("textarea[name='content']").val("");
+					}
+			    },  
+			    error : function() {  
+					alert("删除失败");
+			    }  
+			});
+		}
+
+		function initDeleteBlog(){
+			$(".delete_blog").click(function(){
+				if(confirm("确定删除该文章?")){
+					deleteBlog();
+				}
+			})
+		}
+
 		$(document).ready(function(){
 			initContent();
 			initFixContent();
 			initTime();
+			initDeleteBlog();
+			autoInitContent();
 		})
 	</script>
 </html>
