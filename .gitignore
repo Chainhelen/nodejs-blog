@@ -7,5 +7,4 @@ Procfile
 /public/stylesheets/*
 /source
 source
-/view/welcome.html
-/view/cv.html
+config.json
