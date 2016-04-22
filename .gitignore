@@ -8,3 +8,5 @@ Procfile
 /source
 source
 config.json
+tags
+ctags_shell.sh

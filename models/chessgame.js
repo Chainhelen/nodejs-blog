@@ -1,4 +1,16 @@
 
+//debug function 
+function DEBUG_FUNCTION(DebugSwitch, showstring, callback, callbackparameter){
+    if(!DebugSwitch){
+        return;
+    }
+    console.log(showstring);
+    if(null == callbackparameter || null != callback){
+        return;
+    }
+    callback(callbackparameter);
+}
+
 //错误类型
 var PlayerModelError = {
     "AccountException":              0,
@@ -7,7 +19,7 @@ var PlayerModelError = {
     "OffLine":                       3
 }
 
-//玩家模型
+//wan jia zhuangtai
 var PlayerState = {
     "OffLine" :             1,
     "GameRunning" :         2, 
@@ -15,6 +27,14 @@ var PlayerState = {
     "Exception" :           4
 };
 
+//Class Name
+var ClassType = {
+    "PlayerClassType"       :   "ChessPlayer",
+    "ChessRoomClassType"    :   "ChessRoom",
+    "ControllerClassType"   :   "Controller"
+}
+
+//玩家class
 var ChessPlayer = function (id){
     this.id = id;
     this.room = {};
@@ -22,7 +42,7 @@ var ChessPlayer = function (id){
 };
 
 ChessPlayer.prototype.setRoom = function (room) {
-    if("ChessRoom" != room){
+    if(ClassType["ChessRoomClassTypeString"] != typeof(room)){
         return false;
     }
     this.room = room;
@@ -33,8 +53,8 @@ ChessPlayer.prototype.setRoom = function (room) {
 var ChessRoom = function (){};
 
 //游戏控制器
-var Controler = function() {};
-Controler.prototype.getPlayer = function (roomId){
+var Controller = function() {};
+Controller.prototype.getPlayer = function (roomId){
 }
 
 //
