@@ -8,30 +8,30 @@ var DS           = require('./datastruct.js');
 /* name      : doLogin
  * function  : the player login in the game 
  * parameter : gamectrset , the set of game controller
- *             loginmsg, the message from client about login
+ *             logingamemsg, the message from client about login
  * return    : 
  */
-function doLogin(cursocket, gamectrset, loginmsg){
+function doLoginGame(cursocket, gamectrset, logingamemsg){
     //check login authentication
-    if("undefined" == loginmsg || null == loginmsg){
+    if("undefined" == logingamemsg || null == logingamemsg){
         logger.LOG("error", "the socket msg:auth maybe wrong" , null, null);
     }
-    logger.LOG('debug', loginmsg, null, null);
-    logger.LOG('info', 'player:' + loginmsg.id + ' trying to login the game' , null, null);
+    logger.LOG('debug', logingamemsg, null, null);
+    logger.LOG('info', 'player:' + logingamemsg.id + ' trying to login the game' , null, null);
 
-    //get or add player object from loginmsg
-    var player = gamectrset.getPlayer(loginmsg.id);
+    //get or add player object from logingamemsg
+    var player = gamectrset.getPlayer(logingamemsg.id);
     if(player){
-        //need to write
+        logger.LOG('info', 'player:' + logingamemsg.id + ' has logined the game' , null, null);
     } else { // add a player
         player = PlayerCtr.newPlayer();
-        player.setId(loginmsg.id);
+        player.setId(logingamemsg.id);
         player.setSocket(cursocket);
 
         gamectrset.addPlayer(player);
         gamectrset.addSocket(cursocket);
 
-        logger.LOG('info', 'player:' + loginmsg.id + ' login the game successfully' , null, null);
+        logger.LOG('info', 'player:' + logingamemsg.id + ' login the game successfully' , null, null);
     }
 }
 
@@ -47,9 +47,9 @@ exports.StartGameListen = function(io) {
         cursocket.emit('socket link successfully');
         logger.LOG('info', 'socket:' + cursocket.id +' link successfully' , null, null);
 
-        cursocket.on('login', function(loginmsg){
-            console.log(loginmsg);
-            doLogin(cursocket, gamectrset, loginmsg);
+        cursocket.on('logingame', function(logingamemsg){
+            console.log(logingamemsg);
+            doLoginGame(cursocket, gamectrset, logingamemsg);
         });
     });
 }

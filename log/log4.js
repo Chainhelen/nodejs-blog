@@ -6,15 +6,21 @@ log4js.configure({
     ]
 });
 
+// the level of log, if not setting in list, it will be set "info"
 var loglevel = {
     'chessgame' : 'debug',
-    'chat'      : 'debug'
+    'chat'      : 'debug',
+    'mongoose'  : 'info'
 }
 
 //log function 
 exports.log = function(name){
     var logger = log4js.getLogger(name);
-    logger.setLevel(loglevel[name]);
+    if(loglevel[name]){
+        logger.setLevel(loglevel[name]);
+    } else {
+        logger.setLevel("info");
+    }
     logger.LOG = function (LogSwitch, showstring, callback, callbackparameter){
         if(null != showstring){
             if("trace" == LogSwitch){

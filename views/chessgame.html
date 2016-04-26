@@ -1,22 +1,89 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
     <head>
+        <style type="text/css">
+            button {
+                width:100px;
+            }
+            .ctrset {
+                margin-bottom: 10px;
+                width:100%
+            }
+            #show{
+                width:100%;
+            }
+            #show > p {
+                text-align:center;
+                    margin-bottom:20px;
+            }
+        </style>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <script src="javascripts/jquery.js"></script>
         <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
-        <div style="margin:0 auto; width:300px">
-            <button id="login">login</button>
-            <label></label>
+        <div id="show">
+            <p>hello world</p>
+        </div>
+        <div class="ctrset">
+            <button id="regbtn">register</button>
+            <label for="username">username</label>
+            <input type="text" name="username" value="222">
+            <label for="password">password</label>
+            <input type="password" name="password" value="333">
+        </div>
+        <div class="ctrset">
+            <button id="loginbtn">login</button>
+            <label for="username">username</label>
+            <input type="text" name="username" value="222">
+            <label for="password">password</label>
+            <input type="password" name="password" value="333">
+        </div>
+        <div class="ctrset">
+            <button id="logingamebtn">logingame</button>
+            <label id="logingamelab"></label>
         </div>
     </body>
-    <script>
+    <script type="text/javascript">
         $(document).ready(function(){
-            var socket = io.connect('http://127.0.0.1:3000/chessgame');
-            $("#login").click(function(){
-                socket.emit('login', {'id': 'hello world'});
-            });
+            (function(){
+                //user register
+                $('#regbtn').click(function(){
+                    $.post(
+                            '/chessgame/userreg',
+                            {
+                                username : $("input[name='username']")[0].value,
+                                password : $("input[name='password']")[0].value
+                            },
+                            function(data){
+                                console.log('user register');
+                                console.log(data);
+                            }
+                          )
+                });
+
+                //user login 
+                $('#loginbtn').click(function(){
+                    $.post(
+                            '/chessgame/userlogin',
+                            {
+                                username : $("input[name='username']")[1].value,
+                                password : $("input[name='password']")[1].value
+                            },
+                            function(data){
+                                console.log('user login');
+                                console.log(data);
+                            }
+                          )
+                });
+            })();
+            // user login game
+            (function(){
+                var socket = io.connect('http://127.0.0.1:3000/chessgame');
+                $('#logingamebtn').click(function(){
+                    socket.emit('logingame', {'id': 'hello world'});
+                });
+            })();
         });
     </script>
 </html>

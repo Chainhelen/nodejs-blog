@@ -8,11 +8,14 @@
 	},
 	"session":{
 		"secret" : "chain",
-    	"dburl": "mongodb://root:root@ds051838.mongolab.com:51838/cookie",
+    	"dburl": "mongodb://root:root@ds051838.mlab.com:51838/cookie",
 		"interval":120000
 	},
 	"blog_mongodb":{
-		"dbURL" : "mongodb://admin:root@ds029257.mongolab.com:29257/blog"
+		"dbURL" : "mongodb://admin:root@ds029257.mlab.com:29257/blog"
 	},
+    "chessgame_mongodb":{
+        "dbURL" : "mongodb://admin:root@ds021731.mlab.com:21731/chessgame"
+    },
 	"adminuser":["chainhelen"]
 }

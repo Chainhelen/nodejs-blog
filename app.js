@@ -75,6 +75,10 @@ if ('development' == app.get('env')) {
 
 //no auth
 app.get('/chessgame', chessgame.index);
+app.post('/chessgame/userlogin', chessgame.userlogin);
+app.post('/chessgame/userreg', chessgame.userreg);
+app.post('/chessgame/userunreg', chessgame.userunreg);
+
 app.get('/mapbox', routes.mapbox);
 app.get('/baidumap',routes.baidumap);
 app.get('/unity', sina.unity);
