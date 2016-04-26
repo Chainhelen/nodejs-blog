@@ -9,6 +9,8 @@ var sina = require('./routes/sina');
 var sources = require('./routes/sources');
 var blog = require('./routes/blog');
 var chat = require('./models/chat');
+var chessgamemsg = require('./models/chessgame/msgrotuer.js');
+var chessgame = require('./routes/chessgame.js');
 var slide = require('./routes/slide');
 var fourzorefour = require('./routes/fourzorefour.js');
 var http = require('http');
@@ -25,6 +27,7 @@ var config=require('./config.json')
 
 //chat
 chat.simple_chat(io);
+chessgamemsg.StartGameListen(io);
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -71,6 +74,7 @@ if ('development' == app.get('env')) {
 }
 
 //no auth
+app.get('/chessgame', chessgame.index);
 app.get('/mapbox', routes.mapbox);
 app.get('/baidumap',routes.baidumap);
 app.get('/unity', sina.unity);

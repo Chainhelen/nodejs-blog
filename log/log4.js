@@ -6,16 +6,21 @@ log4js.configure({
     ]
 });
 
+var loglevel = {
+    'chessgame' : 'debug',
+    'chat'      : 'debug'
+}
+
 //log function 
-exports.logger = function(name){
+exports.log = function(name){
     var logger = log4js.getLogger(name);
-    logger.setLevel('INFO');
-    logger.LOG = function LOG(LogSwitch, showstring, callback, callbackparameter){
+    logger.setLevel(loglevel[name]);
+    logger.LOG = function (LogSwitch, showstring, callback, callbackparameter){
         if(null != showstring){
             if("trace" == LogSwitch){
                 logger.trace(showstring);
             } else if("debug" == LogSwitch){
-                logger.Debug(showstring);
+                logger.debug(showstring);
             } else if("info" == LogSwitch){
                 logger.info(showstring);
             } else if("warn" == LogSwitch){

@@ -4,7 +4,8 @@ var DS = {};
 DS.ClassType = {
     "PlayerClassType"       :   "ChessPlayer",
     "ChessRoomClassType"    :   "ChessRoom",
-    "ControllerClassType"   :   "Controller"
+    "ControllerClassType"   :   "Controller",
+    "AuthClassType"         :   "AuthClass"
 }
 
 //Game running error
@@ -16,20 +17,29 @@ DS.GameError = {
     "RoomExceptionError":                 4
 }
 
-//player state
-DS.PlayerState = {
-    "OffLineState" :                        1,
-    "GameRunningState" :                    2, 
-    "PauseGameRunningState" :               3,
-    "ExceptionState" :                      4
+DS.GameStatus = {
+} 
+
+//player status
+DS.PlayerStatus = {
+    "OffLineStatus" :                        1,
+    "GameRunningStatus" :                    2, 
+    "PauseGameRunningStatus" :               3,
+    "ExceptionStatus" :                      4
 };
 
-//chess room state
-DS.ChessRoomState = {
-    "GameRoomPauseState":               0,
-    "GameRoomStartState":               1,
-    "GameRoomStopState":                2,
-    "GameRoomExceptionState":           3
+//chess room status
+DS.ChessRoomStatus = {
+    "GameRoomPauseStatus":               0,
+    "GameRoomStartStatus":               1,
+    "GameRoomStopStatus":                2,
+    "GameRoomExceptionStatus":           3
 }
+
+
+/*
+DS.Auth = {
+    "id" : null 
+}*/
 
 module.exports = DS;

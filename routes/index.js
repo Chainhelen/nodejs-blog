@@ -25,8 +25,9 @@ exports.simple_chat = function(req, res) {
         host:wsinfo.getIpv4(), 
         port:wsinfo.getPort()
     };
-    console.log("Debug :");
-    console.log(target);
+
+    var logger       = require('../../log/log4.js').log('chat');
+    logger.LOG('debug', target, null, null);
 
     res.render('simple_chat', {
         json: req.ip,

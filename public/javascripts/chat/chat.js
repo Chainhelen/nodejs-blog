@@ -10,7 +10,7 @@
     }
 
     var socket = io.connect('http://' + target.host + ':' + target.port + '/chat');
-    socket.on('open',function(){
+    socket.on('open', function(){
         status.text('Choose a name:');
     });
 
