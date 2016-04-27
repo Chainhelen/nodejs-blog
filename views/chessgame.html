@@ -47,21 +47,32 @@
         </div>
     </body>
     <script type="text/javascript">
+$($('#loginshow')[0])
         $(document).ready(function(){
-            var lun = (function(show, showstr){
-                var str = '.';
-                return setInterval(1000, function(){
-                    str += '.';
-                    if(5 == str.length){
-                        str = '.';
+            var lun = function(show, showstr){
+                var str = '';
+                var ll = null;
+                return {
+                    terval: function(){
+                        ll = setInterval(function(){
+                            str += '.';
+                            if(7 == str.length){
+                                str = '.';
+                            }
+                            show.text(showstr + str);
+                        }, 600);
+                    },
+                    stopter: function(){
+                        clearInterval(ll);
                     }
-                    $($('#loginshow')[0]).text(showstr + str);
-                });
-            })(showstr);
+                }
+            };
 
             (function(){
                 //user register
                 $('#regbtn').click(function(){
+                    var regbtnwait = lun($($('#regshow')[0]), 'regging ,please wait');
+                    regbtnwait.terval();
                     $.post(
                             '/chessgame/userreg',
                             {
@@ -69,14 +80,16 @@
                                 password : $("input[name='password']")[0].value
                             },
                             function(data){
+                                regbtnwait.stopter(); 
                                 $($('#regshow')[0]).text(data.result);
                             }
                           )
-                        $($('#regshow')[0]).text("regging ,please wait..");
                 });
 
                 //user login 
                 $('#loginbtn').click(function(){
+                    var loginbtnwait = lun($($('#loginshow')[0]), 'logining ,please wait');
+                    loginbtnwait.terval();
                     $.post(
                             '/chessgame/userlogin',
                             {
@@ -84,7 +97,7 @@
                                 password : $("input[name='password']")[1].value
                             },
                             function(data){
-                                clearInterval(lun);
+                                loginbtnwait.stopter();
                                 $($('#loginshow')[0]).text(data.result);
                             }
                           )

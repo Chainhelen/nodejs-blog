@@ -5,6 +5,7 @@ var result = {
     userloginusernameisnull   : 'login failed, the username is null',
     userloginpasswordisnull   : 'login failed, the password is null',
     userloginsuccess          : 'login sucessfully',
+    userhaslogin              : 'user has logged, please logout first',
     userloginpasswdwrong      : 'login failed, the password is wrong',
     userregusernameisnull     : 'reg failed, the username is null',
     userregpasswordisnull     : 'reg failed, the password is null',
@@ -22,11 +23,19 @@ exports.userlogin = function(req, res){
         res.json({
             result : result["userloginusernameisnull"]
         });
+        return ;
     }
     if(null == req.body.password || "undefined" == typeof(req.body.password) || 0 == req.body.password.length){
         res.json({
             result : result["userloginpasswordisnull"]
         });
+        return ;
+    }
+    if(req.session.userlogin){
+        res.json({
+            result:result["userloginpasswdwrong"]
+        });
+        return ;
     }
 
     gamedb.userFindByName(req.body.username, function(err, obj){
@@ -50,7 +59,8 @@ exports.userlogin = function(req, res){
                 res.json({
                     result:result["userloginsuccess"]
                 });
-                logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' log sucessfully', null, null);
+                req.session.userlogin = postobj;
+                logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' login sucessfully', null, null);
             } else {
                 res.json({
                     result:result["userloginpasswdwrong"]
