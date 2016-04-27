@@ -20,19 +20,19 @@ exports.index = function(req, res){
 exports.userlogin = function(req, res){
     if(null == req.body.username || "undefined" == typeof(req.body.username) || 0 == req.body.username.length){
         res.json({
-            result : result[userloginusernameisnull]
+            result : result["userloginusernameisnull"]
         });
     }
-    if(null == req.body.password || "undefined" == typeof(req.body.password) || 0 == erq.body.password.length){
+    if(null == req.body.password || "undefined" == typeof(req.body.password) || 0 == req.body.password.length){
         res.json({
-            result : result[userloginpasswordisnull]
+            result : result["userloginpasswordisnull"]
         });
     }
 
     gamedb.userFindByName(req.body.username, function(err, obj){
         if(err){
             res.json({
-                result: result[internalerror]
+                result: result["internalerror"]
             });
             logger.LOG('error', 'user ' + JSON.stringify(req.body) + ' from post login failed', null, null);
             logger.LOG('error', err, null, null);
@@ -48,12 +48,12 @@ exports.userlogin = function(req, res){
             logger.LOG('debug', 'user from db   is ' +  JSON.stringify(obj)     , null, null);
             if(postobj.md5password == obj.md5password){
                 res.json({
-                    result:result[userloginsuccess]
+                    result:result["userloginsuccess"]
                 });
                 logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' log sucessfully', null, null);
             } else {
                 res.json({
-                    result:result[userloginpasswdwrong]
+                    result:result["userloginpasswdwrong"]
                 });
                 logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' log failed, password is wrong', null, null);
             }
@@ -64,19 +64,19 @@ exports.userlogin = function(req, res){
 exports.userreg = function(req, res){
     if(null == req.body.username || "undefined" == typeof(req.body.username) || 0 == req.body.username.length){
         res.json({
-            result : result[userregusernameisnull]
+            result : result["userregusernameisnull"]
         });
     }
     if(null == req.body.password || "undefined" == typeof(req.body.password) || 0 == req.body.password.length){
         res.json({
-            result : result[userregpasswordisnull]
+            result : result["userregpasswordisnull"]
         });
     }
 
     gamedb.userFindByName(req.body.username, function(err, obj){
         if(err){
             res.json({
-                result: result[internalerror]
+                result: result["internalerror"]
             });
             logger.LOG('error', 'user ' + JSON.stringify(req.body) + ' from post reg failed', null, null);
             logger.LOG('error', err, null, null);
@@ -84,7 +84,7 @@ exports.userreg = function(req, res){
         if(obj){
             logger.LOG('info', 'user ' + req.body.username + 'reg failed, the user exist', null, null);
             res.json({
-                result: result[userregusernameexist]
+                result: result["userregusernameexist"]
             });
         } else {
             var crypto = require('crypto');
@@ -97,13 +97,13 @@ exports.userreg = function(req, res){
             gamedb.userReg(postobj, function(err){
                 if(err){
                     res.json({
-                        result: result[internalerror]
+                        result: result["internalerror"]
                     });
                     logger.LOG('error', 'user ' + JSON.stringify(req.body) + ' from post reg failed', null, null);
                     logger.LOG('error', err, null, null);
                 } else {
-                    res.json{{
-                        result: result[userregsuccess]
+                    res.json({
+                        result: result["userregsuccess"]
                     });
                     logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' reg sucessfully', null, null);
                 }

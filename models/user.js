@@ -1,10 +1,10 @@
-var db = require('./db');
-var Schema = db.mongoose.Schema;
+var db = require('./db').getBlogDB();
+var Schema = db.Schema;
 var userSchema = new Schema({
 	username: String,
 	password: String
 })
-var User = db.mongoose.model('User', userSchema);
+var User = db.model('User', userSchema);
 var UserDAO = function() {};
 
 UserDAO.prototype.save = function(obj, callback) {

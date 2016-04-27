@@ -44,6 +44,8 @@ exports.baidumap = function(req, res){
 };
 
 exports.indexone = function(req, res) {
+    req.session.test = "seond test";
+
     if (!req.session.user) {
         res.render('index', {
             user: 'ni',

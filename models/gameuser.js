@@ -1,5 +1,5 @@
-var db = require('./db');
-var Schema = db.mongoose.Schema;
+var db = require('./db').getChessgameDB();
+var Schema = db.Schema;
 
 var gameUserSchema = new Schema({
     username: String,
@@ -11,8 +11,8 @@ var gameStepSchema = new Schema({
     step    : String
 });
 
-var GameUser = db.mongoose.model('GameUser', gameUserSchema);
-var GameStep = db.mongoose.model('GameStep', gameStepSchema);
+var GameUser = db.model('GameUser', gameUserSchema);
+var GameStep = db.model('GameStep', gameStepSchema);
 
 var GameDAO = function(){};
 
@@ -40,11 +40,11 @@ GameDAO.prototype.userFindByName = function(name, callback){
 };
 
 GameDAO.prototype.userUnReg = function(obj, callback){
-//    GameUser.remove({
-//        username : obj.username
-//    }, function(e){
-//        callback(e);
-//    });
+    GameUser.remove({
+        username : obj.username
+    }, function(e){
+        callback(e);
+    });
 };
 
 module.exports = new GameDAO();

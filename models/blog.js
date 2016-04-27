@@ -1,5 +1,5 @@
-var db = require('./db');
-var Schema = db.mongoose.Schema;
+var db = require('./db').getBlogDB();
+var Schema = db.Schema;
 
 var blogSchema = new Schema({
 	title: String,
@@ -9,7 +9,7 @@ var blogSchema = new Schema({
 	author: String 
 })
 
-var Blog = db.mongoose.model('Blog', blogSchema);
+var Blog = db.model('Blog', blogSchema);
 var BlogDAO = function() {};
 
 BlogDAO.prototype.saveDocs = function(obj, callback){

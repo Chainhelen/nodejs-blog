@@ -31,13 +31,15 @@
             <input type="text" name="username" value="222">
             <label for="password">password</label>
             <input type="password" name="password" value="333">
+            <label id="regshow"></label>
         </div>
         <div class="ctrset">
-            <button id="loginbtn">login</button>
+            <button id="loginbtn">user login</button>
             <label for="username">username</label>
             <input type="text" name="username" value="222">
             <label for="password">password</label>
             <input type="password" name="password" value="333">
+            <label id="loginshow"></label>
         </div>
         <div class="ctrset">
             <button id="logingamebtn">logingame</button>
@@ -46,6 +48,17 @@
     </body>
     <script type="text/javascript">
         $(document).ready(function(){
+            var lun = (function(show, showstr){
+                var str = '.';
+                return setInterval(1000, function(){
+                    str += '.';
+                    if(5 == str.length){
+                        str = '.';
+                    }
+                    $($('#loginshow')[0]).text(showstr + str);
+                });
+            })(showstr);
+
             (function(){
                 //user register
                 $('#regbtn').click(function(){
@@ -56,10 +69,10 @@
                                 password : $("input[name='password']")[0].value
                             },
                             function(data){
-                                console.log('user register');
-                                console.log(data);
+                                $($('#regshow')[0]).text(data.result);
                             }
                           )
+                        $($('#regshow')[0]).text("regging ,please wait..");
                 });
 
                 //user login 
@@ -71,8 +84,8 @@
                                 password : $("input[name='password']")[1].value
                             },
                             function(data){
-                                console.log('user login');
-                                console.log(data);
+                                clearInterval(lun);
+                                $($('#loginshow')[0]).text(data.result);
                             }
                           )
                 });
