@@ -21,7 +21,7 @@ routes-> chessgame.js
 view-> chessgame.html  
 
 ##### 以下为代码片段解释
-###### app.js
+##### app.js
 ```
 ...
 //chat.simple_chat 是之前写的简单聊天室
@@ -45,7 +45,7 @@ app.post('/chessgame/userlogin', chessgame.userlogin);
 app.post('/chessgame/userreg', chessgame.userreg);
 app.post('/chessgame/userunreg', chessgame.userunreg);
 ```
-###### log4/log4.js
+##### log4/log4.js
 封装log4js打印log，保证可维护性。由其他模块require调用。  
 不同业务逻辑，采用loglelve打印不同等级日志。  
 同一业务逻辑，采用不同LogSwith，控制不同的日志输出
@@ -79,16 +79,16 @@ exports.log = function(name){
 };
 ```
 
-###### models/db.js
+##### models/db.js
 exports 导出的对象 改成了具有两个函数属性getBlogDB，getChessgameDB的对象
 用于连接数据库，这么改成两个属性的主要是因为想把游戏的后台数据库与node-blog原先的blog数据库分开。
 
-###### models/gameuser.js  
+##### models/gameuser.js  
 require('./db.js').getClessgameDB()，拿到连接db的对象。原型类构造器GameUser。  
 　　　GameUserprototype.userReg: 注册游戏user  
 　　　GameUserprototype.useFindByName: 查找某一用户从注册游戏user列表  
 　　　GameUserprototype.userUnReg: 删除游戏user  
-###### models/chessgame/datastruct.js
+##### models/chessgame/datastruct.js
 共有的数据结构(尚未完善)
 ```
 var DS = {};
@@ -125,8 +125,8 @@ DS.ChessRoomStatus = {
 }
 module.exports = DS;
 ```
-###### models/chessgame/chessroomctr.js
-###### models/chessgame/playerctr.js
+##### models/chessgame/chessroomctr.js
+##### models/chessgame/playerctr.js
 以上都是数据类型，分别chessroom，player的class控制器，包括class的一些操作
 ```
 //chessroomctr.js 　room class  
@@ -159,7 +159,7 @@ var ChessPlayer = function (){
     this.socket = null;
 };
 ```
-###### models/chessgame/gamectr.js
+##### models/chessgame/gamectr.js
 游戏运行逻辑集合(尚未完善)
 ```
 /* name      : GameCtrSet.prototype.EnterRoom
@@ -246,7 +246,7 @@ GameCtrSet.prototype.playerEnterRoomById = function (player, room) {
     return true;
 }
 ```
-###### models/chessgame/msgrouter.js
+##### models/chessgame/msgrouter.js
 游戏后端与页面websocket直接连接的逻辑，如下user登陆
 ```
 /* name      : doLogin
