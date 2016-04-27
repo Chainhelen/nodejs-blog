@@ -11,7 +11,7 @@ var loglevel = {
     'chessgame' : 'debug',
     'chat'      : 'debug',
     'mongoose'  : 'info'
-}
+};
 
 //log function 
 exports.log = function(name){

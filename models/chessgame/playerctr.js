@@ -10,7 +10,6 @@ var ChessPlayer = function (){
     this.socket = null;
 };
 
-
 //the get/set function of ChessPlayer class 
 ChessPlayer.prototype.getId = function(){
     return this.id;
