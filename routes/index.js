@@ -26,7 +26,7 @@ exports.simple_chat = function(req, res) {
         port:wsinfo.getPort()
     };
 
-    var logger       = require('../../log/log4.js').log('chat');
+    var logger       = require('../log/log4.js').log('chat');
     logger.LOG('debug', target, null, null);
 
     res.render('simple_chat', {

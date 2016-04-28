@@ -1,12 +1,12 @@
 //gamectr class
 
 //init Array class
-Array.prototype.remove = function(dx) 
+function ArrayRemove(array, dx) 
 { 
-    if(isNaN(dx)||dx>this.length){
+    if(isNaN(dx) || dx > array.length){
         return false;
     }
-    this.splice(dx,1); 
+    array.splice(dx,1); 
 }
 
 //require some *.js
@@ -134,7 +134,7 @@ GameCtrSet.prototype.addPlayer = function(player){
 GameCtrSet.prototype.removePlayer = function(playerid){
     for(var i = 0;i < this.players.length;i++){
         if(this.players[i].id == playerid){
-            return this.players.remove(i);
+            return ArrayRemove(this.players, i);
         }
     }
     return false;
@@ -158,7 +158,7 @@ GameCtrSet.prototype.addChessRoom = function(room){
 GameCtrSet.prototype.removeChessRoom = function(chessroomid){
     for(var i = 0;i < this.chessrooms.length;i++){
         if(this.chessrooms[i].id == chessroomid){
-            return this.chessrooms.remove(i);
+            return ArrayRemove(this.chessrooms, i);
         }
     }
     return false;
@@ -182,7 +182,7 @@ GameCtrSet.prototype.addSocket = function(socket){
 GameCtrSet.prototype.removeSocket = function(socketid){
     for(var i = 0;i < this.sockets.length;i++){
         if(this.sockets[i].id == socketid){
-            return this.chessrooms.remove(i);
+            return ArrayRemove(this.sockets, i);
         }
     }
     return false;
