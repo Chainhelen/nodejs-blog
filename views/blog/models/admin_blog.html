@@ -8,6 +8,9 @@
 				width:20%;
 			  	margin-left:5%;
 			}
+            a {
+                text-decoration:none;
+            }
 			.look_blog {
 				display: block;
 				margin-top:20px;
@@ -90,7 +93,7 @@
 		<div class="control_button">
 			<button class="look_blog">look</button>
 			<button class="delete_blog">delete</button>
-			<button class="logout_button">logout</button>
+            <button class="logout_button"><a href="/">logout</a></button>
 		</div>
 		<form method="post" onsubmit="return checkForm()" action="/admin_blog/add">
 			<div class="control_show">
@@ -132,7 +135,7 @@
 	</body>
 	<script src="/javascripts/jquery.js"></script>
 	<script>
-		function initTime(){
+        function initTime(){
 			var myDate = new Date();
 			var myTimeVaule = myDate.getFullYear() + "." + (myDate.getMonth() + 1) + "." + myDate.getDate();
 			$("#date").attr("value", myTimeVaule);

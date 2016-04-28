@@ -44,6 +44,7 @@ exports.index = function(req, res, next){
 				username : "chainhelen",
    	        	blogitems : databaseBlogs,
 				warrings : warring,
+                haslogin : req.session.user
         	});
 		});
     }else{ // data
@@ -112,6 +113,7 @@ exports.user_blog_index = function(req, res, next){
 				username : req.params.user,
 				blogitems : result,
 				warrings : warrings,
+                haslogin : req.session.user
    	    	});
 		});
 	})

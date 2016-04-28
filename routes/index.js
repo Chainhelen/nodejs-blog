@@ -44,9 +44,27 @@ exports.baidumap = function(req, res){
 };
 
 exports.indexone = function(req, res) {
-    req.session.test = "seond test";
+    var logger       = require('../log/log4.js').log('blog');
+    logger.LOG('debug', 'http req-->Referer :' + req.get('Referer'), null, null);
 
-    if (!req.session.user) {
+    var logoutFlag = false;
+    var Referer = req.get('Referer');
+
+    if("undefined" == typeof(Referer)){
+        logoutFlag = false;
+    } else {
+        var fromDir = Referer.split('/');
+
+        if(fromDir.length != 4 || (fromDir[3].split('?')[0] != "admin_blog_index" && fromDir[3].split('?')[0] != "admin_blog")){
+            logoutFlag = false;
+        } else {
+            logger.LOG('debug', 'so the event is that user' + req.session.user.username + ' logout', null, null);
+
+            logoutFlag = true;
+        }
+    }
+
+    if (!req.session.user || !logoutFlag) {
         res.render('index', {
             user: 'ni',
             title: 'Welcome',
@@ -56,7 +74,7 @@ exports.indexone = function(req, res) {
         req.session.user = null;
         res.render('index', {
             title: 'Logout',
-            think: '哎哟，又来一遍'
+            think: '欢迎重新登陆'
         })
     }
 };

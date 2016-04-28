@@ -1,7 +1,23 @@
 <% include ./models/Head.html %>
 <div id="main">
     <div class="title">
-        <h1>welcome to my blog</h1>
+        <% if("undefined" != typeof(fix) && true == fix) { %>
+            <h1>you can manage <font style="font-size:15px">or <a href="/" target="_blank">logout</a><font></h1>
+        <% } else {%>
+            <h1>welcome to my blog </h1>
+            <style type="text/css">
+                #manageorlogout:hover {
+                    text-decoration:underline
+                }
+            </style>
+            <script type="text/javascript" src="/javascripts/jquery.js"><script>
+            <script type="text/javascript>
+                $(document).ready(function(){
+                    <!--                    $("#manageorlougout"). --!>
+                });
+            </script>
+            <p style="font-size:18px">you has login, can <a href="/admin_blog_index" id="manageorlogout">manage or logout</a></p>
+        <% } %>
     </div>
         <% blogitems.forEach(function(item){ %>
 			<% if("关于本blog系统" == item.title){ %>
@@ -12,7 +28,7 @@
 
 
 			<% if("undefined" != typeof(fix) && true == fix) { %>
-				<a href="/admin_blog?title=<%= item.escapetitle %>" target="_blank">-++</a>
+				<a href="/admin_blog?title=<%= item.escapetitle %>" target="_blank">--xx</a>
 			<% }else {%>
 				<% if("undefined" != typeof(firstshow)) {%>
 					<a href="/blog/<%= item.title %>" target="_blank">-></a>

@@ -10,7 +10,7 @@ log4js.configure({
 var loglevel = {
     'chessgame' : 'debug',
     'chat'      : 'debug',
-    'blog'      : 'info',
+    'blog'      : 'debug',
     'mongoose'  : 'info'
 };
 
