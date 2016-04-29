@@ -8,6 +8,7 @@ var filetype = ['md', 'html', 'local_allfiles'];
 var config = require('../config.json');
 var adminuser = config.adminuser;
 var users = require('../models/user.js');
+var logger = require('../log/log4.js').log('blog');
 
 //mark option
 markdown.setOptions({
@@ -39,12 +40,14 @@ exports.index = function(req, res, next){
 			if(numOfAllFiles != allLocalBlogs.length){
 				warring = "warring numOfAllFiles != allLocalBlogs.length\n";
 			}
+            logger.LOG("debug", "req.session.user " + JSON.stringify(req.session.user), null, null);
+
 	        res.render('blog/index', {
 				firstshow : true,
 				username : "chainhelen",
    	        	blogitems : databaseBlogs,
 				warrings : warring,
-                haslogin : req.session.user
+                haslogin : (req.session.user.username == "chainhelen" ? "chainhelen" : null)
         	});
 		});
     }else{ // data
@@ -109,11 +112,13 @@ exports.user_blog_index = function(req, res, next){
 			for(i in obj){
 				result.push(obj[i]);
 			}
+            logger.LOG("debug", "user_blog_index req.session.user " + JSON.stringify(req.session.user), null, null);
+
 			res.render('blog/index',{
 				username : req.params.user,
 				blogitems : result,
 				warrings : warrings,
-                haslogin : req.session.user
+                haslogin : (req.session.user.username == req.params.user ? req.params.user : null)
    	    	});
 		});
 	})
@@ -169,8 +174,10 @@ exports.blog_fix_status = function(req, res, next){
 				obj[i].escapetitle = escape(obj[i].title);
 				result.push(obj[i]);
 			}
+            logger.LOG("debug", "blog_fix_status res.locals.user.username " + res.locals.user.username, null, null);
+
 			res.render('blog/index',{
-				username : req.params.user,
+				username : res.locals.user.username,
 				blogitems : result,
 				warrings : warrings,
 				fix : true
