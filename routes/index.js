@@ -58,9 +58,10 @@ exports.indexone = function(req, res) {
         if(fromDir.length != 4 || (fromDir[3].split('?')[0] != "admin_blog_index" && fromDir[3].split('?')[0] != "admin_blog")){
             logoutFlag = false;
         } else {
-            logger.LOG('debug', 'so the event is that user' + req.session.user.username + ' logout', null, null);
-
-            logoutFlag = true;
+            if(req.session.user){
+                logger.LOG('debug', 'so the event is that user' + req.session.user.username + ' logout', null, null);
+                logoutFlag = true;
+            }
         }
     }
 

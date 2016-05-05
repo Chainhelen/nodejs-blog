@@ -1,5 +1,7 @@
 var gamedb = require('../models/gameuser.js');
 var logger = require('../log/log4.js').log('chessgame');
+var jwt = require('jsonwebtoken');
+var config = require('../config.json');
 
 var result = {
     userloginusernameisnull   : 'login failed, the username is null',
@@ -31,12 +33,12 @@ exports.userlogin = function(req, res){
         });
         return ;
     }
-    if(req.session.userlogin){
+/*    if(req.session.userlogin){
         res.json({
-            result:result["userloginpasswdwrong"]
+            result:result["userhaslogin"],
         });
         return ;
-    }
+    }*/
 
     gamedb.userFindByName(req.body.username, function(err, obj){
         if(err){
@@ -56,11 +58,19 @@ exports.userlogin = function(req, res){
             logger.LOG('debug', 'user from post is ' +  JSON.stringify(postobj), null, null);
             logger.LOG('debug', 'user from db   is ' +  JSON.stringify(obj)     , null, null);
             if(postobj.md5password == obj.md5password){
+                // TODO: validate the actual user user
+                var profile = {
+                    username: req.body.username
+                };
+                // we are sending the profile in the token
+                var token = jwt.sign(profile, config.JwtSecret, {expiresIn: "1 h"});
+
                 res.json({
-                    result:result["userloginsuccess"]
+                    result : result["userloginsuccess"],
+                    username : req.body.username,
+                    token : token
                 });
-                req.session.userlogin = postobj;
-                logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' login sucessfully', null, null);
+                logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' post login sucessfully', null, null);
             } else {
                 res.json({
                     result:result["userloginpasswdwrong"]

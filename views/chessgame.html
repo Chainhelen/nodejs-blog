@@ -25,6 +25,10 @@
         <div id="show">
             <p>hello world</p>
         </div>
+        <div>
+            <label style="width:100px;display:inline-block;text-align:center">loginuser:</label>
+            <label id="showloginuser" style="width:100px;display:inline-block;text-align:center;margin-bottom:5px">[]</label>
+        </div>
         <div class="ctrset">
             <button id="regbtn">register</button>
             <label for="username">username</label>
@@ -40,10 +44,6 @@
             <label for="password">password</label>
             <input type="password" name="password" value="333">
             <label id="loginshow"></label>
-        </div>
-        <div class="ctrset">
-            <button id="logingamebtn">logingame</button>
-            <label id="logingamelab"></label>
         </div>
     </body>
     <script type="text/javascript">
@@ -99,15 +99,13 @@ $($('#loginshow')[0])
                             function(data){
                                 loginbtnwait.stopter();
                                 $($('#loginshow')[0]).text(data.result);
+                                if(null != data.username && "undefined" != typeof(data.username)){
+                                    $($('#showloginuser')[0]).text(data.username);
+                                    var socket = io.connect('http://127.0.0.1:3000/chessgame');
+                                    socket.emit('logingame', {'id': 'hello world'});
+                                }
                             }
                           )
-                });
-            })();
-            // user login game
-            (function(){
-                var socket = io.connect('http://127.0.0.1:3000/chessgame');
-                $('#logingamebtn').click(function(){
-                    socket.emit('logingame', {'id': 'hello world'});
                 });
             })();
         });

@@ -4,6 +4,8 @@ var PlayerCtr    = require('./playerctr.js');
 var ChessRoomCtr = require('./chessroomctr.js');
 var GameCtr      = require('./gamectr.js');
 var DS           = require('./datastruct.js');
+var socketioJwt  = require("socketio-jwt");
+var config       = require('../../config.json');
 
 /* name      : doLogin
  * function  : the player login in the game 
@@ -42,10 +44,15 @@ function doLoginGame(cursocket, gamectrset, logingamemsg){
  */
 exports.StartGameListen = function(io) {
     var gamectrset = GameCtr.newGameCtrSet();
+    io.set('authorization', socketioJwt.authorize({
+        secret: config.JwtSecret,
+        handshake: true
+    }));
 
     io.of('/chessgame').on('connection', function(cursocket){
         cursocket.emit('socket link successfully');
-        logger.LOG('info', 'socket:' + cursocket.id +' link successfully' , null, null);
+        logger.LOG('info', 'socketid:' + cursocket.id + 
+                '; username : ' + socket.decoded_token.username, 'connected', null , null);
 
         cursocket.on('logingame', function(logingamemsg){
             console.log(logingamemsg);
