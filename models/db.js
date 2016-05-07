@@ -5,7 +5,7 @@ exports.getBlogDB = function() {
     var mongoose = require('mongoose');
 
     var dbURL = config.blog_mongodb.dbURL;
-    mongoose.connect(dbURL);
+    mongoose.createConnection(dbURL);
 
     mongoose.connection.on('error', function(err) {
         logger.LOG('error', 'Mongoose connection blogdb error: ' + err, null, null);
@@ -20,7 +20,7 @@ exports.getChessgameDB = function() {
     var mongoose = require('mongoose');
 
     var dbURL = config.chessgame_mongodb.dbURL;
-    mongoose.connect(dbURL);
+    mongoose.createConnection(dbURL);
 
     mongoose.connection.on('error', function(err) {
         logger.LOG('error', 'Mongoose connection chessgame error: ' + err, null, null);

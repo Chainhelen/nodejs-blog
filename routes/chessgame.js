@@ -4,11 +4,11 @@ var jwt = require('jsonwebtoken');
 var config = require('../config.json');
 
 var result = {
-    userloginusernameisnull   : 'login failed, the username is null',
-    userloginpasswordisnull   : 'login failed, the password is null',
-    userloginsuccess          : 'login sucessfully',
+    userloginusernameisnull   : 'user login failed, the username is null',
+    userloginpasswordisnull   : 'user login failed, the password is null',
+    userloginsuccess          : 'user login sucessfully',
     userhaslogin              : 'user has logged, please logout first',
-    userloginpasswdwrong      : 'login failed, the password is wrong',
+    userloginpasswdwrong      : 'user login failed, the password is wrong',
     userregusernameisnull     : 'reg failed, the username is null',
     userregpasswordisnull     : 'reg failed, the password is null',
     userregusernameexist      : 'reg failed, the username exist',
@@ -40,6 +40,7 @@ exports.userlogin = function(req, res){
         return ;
     }*/
 
+    logger.LOG('debug', 'gamedb.userFindname', null, null);
     gamedb.userFindByName(req.body.username, function(err, obj){
         if(err){
             res.json({

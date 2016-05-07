@@ -6,6 +6,7 @@ var GameCtr      = require('./gamectr.js');
 var DS           = require('./datastruct.js');
 var socketioJwt  = require("socketio-jwt");
 var config       = require('../../config.json');
+var gamedb = require('../gameuser.js');
 
 /* name      : doLogin
  * function  : the player login in the game 
@@ -44,19 +45,38 @@ function doLoginGame(cursocket, gamectrset, logingamemsg){
  */
 exports.StartGameListen = function(io) {
     var gamectrset = GameCtr.newGameCtrSet();
-    io.set('authorization', socketioJwt.authorize({
+
+    gamedb.allUser(function(err, obj){
+        if(err){
+            logger.Log('error', err);
+        }
+        if(!obj.length){
+        }
+    });
+
+/*    io.set('authorization', socketioJwt.authorize({
+        secret: config.JwtSecret,
+        handshake: true
+    }));*/
+
+    var nsp = io.of('/chessgame');
+    nsp.use(socketioJwt.authorize({
         secret: config.JwtSecret,
         handshake: true
     }));
 
-    io.of('/chessgame').on('connection', function(cursocket){
-        cursocket.emit('socket link successfully');
+    nsp.on('connection', function(cursocket){
+        cursocket.emit('loginsucess');
         logger.LOG('info', 'socketid:' + cursocket.id + 
-                '; username : ' + socket.decoded_token.username, 'connected', null , null);
+                '; username : ' + cursocket.decoded_token.username, 'connected', null , null);
 
-        cursocket.on('logingame', function(logingamemsg){
+        cursocket.broadcast.emit('newuserlogin', {username : cursocket.decoded_token.username});
+
+        cursocket.on('disconnection', function(){
+        });
+/*        cursocket.on('logingame', function(logingamemsg){
             console.log(logingamemsg);
             doLoginGame(cursocket, gamectrset, logingamemsg);
-        });
+        });*/
     });
 }

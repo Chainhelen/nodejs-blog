@@ -22,13 +22,12 @@ var ccap = require('./routes/ccap');
 
 var app = express();
 var server = require('http').createServer(app);
-var chatroomio = require('socket.io')(server);
-var chessgameio = require('socket.io')(server);
+var io = require('socket.io')(server);
 var config=require('./config.json')
 
 //chat
-chat.simple_chat(chatroomio);
-chessgamemsg.StartGameListen(chessgameio);
+chat.simple_chat(io);
+chessgamemsg.StartGameListen(io);
 
 // all environments
 app.set('port', process.env.PORT || 3000);

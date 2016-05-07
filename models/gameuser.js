@@ -47,4 +47,10 @@ GameDAO.prototype.userUnReg = function(obj, callback){
     });
 };
 
+GameDAO.prototype.allUser = function(callback){
+    GameUser.find(function(err, users){
+        callback(err, users);
+    });
+};
+
 module.exports = new GameDAO();
