@@ -45,6 +45,9 @@
             <input type="password" name="password" value="333">
             <label id="loginshow"></label>
         </div>
+        <div id="usershow">
+            <label>userlist:</label>
+        </div>
     </body>
     <script type="text/javascript">
 $($('#loginshow')[0])
@@ -105,13 +108,27 @@ $($('#loginshow')[0])
                                         $($('#loginshow')[0]).text(data.result);
                                 }
                                 if(null != data.username && "undefined" != typeof(data.username)){
-                                    var socket = io.connect('http://127.0.0.1:3000/chessgame', {
+                                    var socket = io.connect('http://<%= target.host %>:<%= target.port %>/chessgame', {
                                                 'query': 'token='+data.token
                                             });
-                                    socket.on('loginsucess', function(json){
-                                        loginbtnwait.stopter();
-                                        $($('#loginshow')[0]).text("user login game sucessfully");
-                                        $($('#showloginuser')[0]).text(data.username);
+                                    socket.on('system', function(json){
+                                        if(json.type == 'loginsucess'){
+                                            loginbtnwait.stopter();
+                                            $($('#loginshow')[0]).text("user login game sucessfully");
+                                            $($('#showloginuser')[0]).text(data.username);
+                                        } else if(json.type == 'newuserlogin'){
+                                            json.allplayers.forEach(function(player){
+
+                                                var sel = "<label><input type='radio' name='user' value='";
+                                                sel += (player.username + "'");
+                                                if(2 == player.curstatus){
+                                                    sel += "checked='checked'";
+                                                }
+                                                sel += "/>" + player.username + "</label>";
+
+                                                $($('#usershow')[0]).append(sel);
+                                            });
+                                        }
                                     });
                                     socket.on('disconnect', function(){
                                         $($('#loginshow')[0]).text("user logout game");

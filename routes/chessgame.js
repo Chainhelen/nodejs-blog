@@ -2,6 +2,7 @@ var gamedb = require('../models/gameuser.js');
 var logger = require('../log/log4.js').log('chessgame');
 var jwt = require('jsonwebtoken');
 var config = require('../config.json');
+var wsinfo = require('../models/wsInfo.js');
 
 var result = {
     userloginusernameisnull   : 'user login failed, the username is null',
@@ -17,7 +18,13 @@ var result = {
 }
 
 exports.index = function(req, res){
-    res.render('chessgame');
+    var target = {
+        host:wsinfo.getIpv4(), 
+        port:wsinfo.getPort()
+    };
+    res.render('chessgame', {
+        target : target
+    });
 };
 
 exports.userlogin = function(req, res){

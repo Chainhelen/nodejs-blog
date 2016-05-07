@@ -23,9 +23,10 @@ DS.GameStatus = {
 //player status
 DS.PlayerStatus = {
     "OffLineStatus" :                        1,
-    "GameRunningStatus" :                    2, 
-    "PauseGameRunningStatus" :               3,
-    "ExceptionStatus" :                      4
+    "OnLineStatus"  :                        2,
+    "GameRunningStatus" :                    3, 
+    "PauseGameRunningStatus" :               4,
+    "ExceptionStatus" :                      5
 };
 
 //chess room status

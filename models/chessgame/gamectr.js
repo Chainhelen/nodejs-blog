@@ -24,12 +24,12 @@ var GameCtrSet = function(){
 };
 
 /* name      : GameCtrSet.prototype.getPlayer
- * function  : get player object by playerid
- * parameter : the id of the player
+ * function  : get player object by playername
+ * parameter : the name of the player
  * return    : player object or null
 */
-GameCtrSet.prototype.getPlayer = function (playerid){
-    return PlayerCtr.getPlayer(playerid, this.players);
+GameCtrSet.prototype.getPlayer = function (playername){
+    return PlayerCtr.getPlayer(playername, this.players);
 }
 
 /* name      : GameCtrSet.prototype.EnterRoom
@@ -42,7 +42,7 @@ GameCtrSet.prototype.playerEnterRoomById = function (player, room) {
     //check the parameter :player
     if(Object != typeof(player)){
         logger.LOG("error", "Error Player Enter Room failed: the typeof player is " + 
-                typeof(playerid), null, null);
+                typeof(playername), null, null);
         return false;
     }
     if(null === player){
@@ -112,7 +112,7 @@ GameCtrSet.prototype.playerEnterRoomById = function (player, room) {
 
 
 
-    logger.LOG("info", "player " + this.id + " set " + " the room " + room.id + " success" , null, null);
+    logger.LOG("info", "player " + this.name + " set " + " the room " + room.id + " success" , null, null);
     return true;
 }
 
@@ -131,9 +131,9 @@ GameCtrSet.prototype.addPlayer = function(player){
  * return    : false if failed
  *             true if success
 */
-GameCtrSet.prototype.removePlayer = function(playerid){
+GameCtrSet.prototype.removePlayer = function(playername){
     for(var i = 0;i < this.players.length;i++){
-        if(this.players[i].id == playerid){
+        if(this.players[i].name == playername){
             return ArrayRemove(this.players, i);
         }
     }

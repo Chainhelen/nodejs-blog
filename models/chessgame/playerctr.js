@@ -4,18 +4,18 @@ var PlayerCtr = {};
 
 //play class
 var ChessPlayer = function (){
-    this.id = null;
+    this.name = null;
     this.room = null;
-    this.status = DS.PlayerStatus["offline"];
+    this.status = DS.PlayerStatus["OffLineStatus"];
     this.socket = null;
 };
 
 //the get/set function of ChessPlayer class 
-ChessPlayer.prototype.getId = function(){
-    return this.id;
+ChessPlayer.prototype.getName = function(){
+    return this.name;
 }
-ChessPlayer.prototype.setId = function(id){
-    this.id = id;
+ChessPlayer.prototype.setName = function(name){
+    this.name = name;
 }
 ChessPlayer.prototype.getRoom = function(){
     return this.room;
@@ -42,9 +42,9 @@ ChessPlayer.prototype.setSocket = function(socket){
  *             players is the array of players
  * return    : player object or null
 */
-PlayerCtr.getPlayer = function(playerid, players) {
+PlayerCtr.getPlayer = function(playername, players) {
     for(var player in this.players){
-        if(player.id == playerid){
+        if(player.name == playername){
             return player;
         }
     }

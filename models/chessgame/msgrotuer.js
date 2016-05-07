@@ -48,11 +48,16 @@ exports.StartGameListen = function(io) {
 
     gamedb.allUser(function(err, obj){
         if(err){
-            logger.Log('error', err);
+            logger.LOG('error', err);
         }
-        if(!obj.length){
-        }
+        obj.forEach(function(dbplayer){
+            var player = PlayerCtr.newPlayer();
+            player.setName(dpplayer.username);
+            gamectrset.addPlayer(player);
+        });
+        logger.LOG('info', gamectrset.players);
     });
+
 
 /*    io.set('authorization', socketioJwt.authorize({
         secret: config.JwtSecret,
@@ -66,12 +71,34 @@ exports.StartGameListen = function(io) {
     }));
 
     nsp.on('connection', function(cursocket){
-        cursocket.emit('loginsucess');
+        cursocket.emit('system', {
+            type         : 'loginsucess'
+        });
+
         logger.LOG('info', 'socketid:' + cursocket.id + 
                 '; username : ' + cursocket.decoded_token.username, 'connected', null , null);
 
-        cursocket.broadcast.emit('newuserlogin', {username : cursocket.decoded_token.username});
+        //send message all player that a new user login
+        var broadcastplayers = [];
+        gamectrset.players.forEach(function(player){
+            if(player.getStatus() == DS.PlayerStatus["OffLineStatus"]){
+                player.setStatus(DS.PlayerStatus["OnLineStatus"]);
+            }
+            //need to add
+            //
+            broadcastplayers.push({
+                username : player.name,
+                curstatus: player.getStatus()
+            });
+        });
 
+        cursocket.broadcast.emit('system', {
+            type         : 'newuserlogin',
+            newloginuser : cursocket.decoded_token.username,
+            allplayers   : broadcastplayers
+        });
+
+        //
         cursocket.on('disconnection', function(){
         });
 /*        cursocket.on('logingame', function(logingamemsg){
