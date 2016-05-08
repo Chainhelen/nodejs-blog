@@ -16,6 +16,12 @@
                 text-align:center;
                     margin-bottom:20px;
             }
+            #usershowdiv {
+                display:none
+            }
+            #choosestartgamediv {
+                display:none
+            }
         </style>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
         <script src="javascripts/jquery.js"></script>
@@ -40,13 +46,24 @@
         <div class="ctrset">
             <button id="loginbtn">user login</button>
             <label for="username">username</label>
-            <input type="text" name="username" value="222">
+            <input type="text" name="username" value=""/>
             <label for="password">password</label>
-            <input type="password" name="password" value="222">
+            <input type="password" name="password" value=""/>
             <label id="loginshow"></label>
         </div>
-        <label>userlist:</label>
-        <div id="usershow">
+        <div class="ctrset" id="usershowdiv">
+            <label>current online user list:</label>
+            <div id="usershow">
+            </div>
+        </div>
+        <br/>
+        <div class="ctrset" id="choosestartgamediv">
+            <label>invite user </label>
+            <select id="otheruserlist">
+            </select>
+            <label>to gameroom</label>
+            <input type="serarch" placeholder="give a room name"/>
+            <button>click to send</button>
         </div>
     </body>
     <script type="text/javascript">
@@ -70,7 +87,26 @@ $($('#loginshow')[0])
                     }
                 }
             };
+            function onlineList(json){
+                $('#usershowdiv').css({display: 'block'});
+                $($('#usershow')[0]).children().remove();
+                json.allplayers.forEach(function(player){
+                    var sel = "<label><input type='radio' name=";
+                    sel += "'" + player.username + "'";
+                    sel += " value='";
+                    sel += (player.username + "'");
+                    if(2 == player.curstatus){
+                        sel += "checked='checked'";
+                    }
+                    sel += " disabled/>" + player.username + "</label>";
 
+                    $($('#usershow')[0]).append(sel);
+                });
+            }
+            function offlineList(){
+                $($('#usershow')[0]).children().remove();
+                $('#usershowdiv').css({display: 'none'});
+            }
             (function(){
                 //user register
                 $('#regbtn').click(function(){
@@ -89,6 +125,7 @@ $($('#loginshow')[0])
                           )
                 });
 
+                var socket = null;
                 //user login 
                 $('#loginbtn').click(function(){
                     var loginbtnwait = lun($($('#loginshow')[0]), 'logining ,please wait');
@@ -104,58 +141,41 @@ $($('#loginshow')[0])
                                 if("user login sucessfully" == data.result){
                                     loginbtnwait = lun($($('#loginshow')[0]), 'use is ok and try login game');
                                     loginbtnwait.terval();
+                                    offlineList();
                                 } else {
                                     console.log('log failed');
                                     $($('#loginshow')[0]).text(data.result);
+                                    offlineList();
                                 }
                                 if(null != data.username && "undefined" != typeof(data.username)){
-                                    var socket = io.connect('http://<%= target.host %>:<%= target.port %>/chessgame', {
+                                    if(socket){
+                                        socket.emit('system', {
+                                            type : 'userlogout'
+                                        });
+                                    }
+                                    socket = io.connect('http://<%= target.host %>:<%= target.port %>/chessgame', {
                                                 'query': 'token='+data.token
                                             });
                                     socket.on('system', function(json){
                                         if(json.type == 'loginsucess'){
-                                            console.log(json.type);
                                             loginbtnwait.stopter();
                                             $($('#loginshow')[0]).text("user login game sucessfully");
                                             $($('#showloginuser')[0]).text(data.username);
                                         } else if(json.type == 'newuserlogin'){
-                                            console.log(json.type);
-                                            $($('#usershow')[0]).children().remove();
-                                            json.allplayers.forEach(function(player){
-                                                var sel = "<label><input type='radio' name=";
-                                                sel += "'" + player.username + "'";
-                                                sel += " value='";
-                                                sel += (player.username + "'");
-                                                if(2 == player.curstatus){
-                                                    sel += "checked='checked'";
-                                                }
-                                                sel += "/>" + player.username + "</label>";
-
-                                                $($('#usershow')[0]).append(sel);
-                                            });
+                                            onlineList(json);
                                         } else if (json.type == 'userotherplacelogin'){
-                                            console.log(json.type);
-                                            $($('#showloginuser')[0]).text('[your account login in other place, here logout]');
+                                            $($('#showloginuser')[0]).text('[your account login in other place]');
+                                            offlineList();
                                         } else if (json.type == 'userlogout'){
-                                            console.log(json.type);
-                                            $($('#usershow')[0]).children().remove();
-                                            json.allplayers.forEach(function(player){
-                                                var sel = "<label><input type='radio' name=";
-                                                sel += "'" + player.username + "'";
-                                                sel += " value='";
-                                                sel += (player.username + "'");
-                                                if(2 == player.curstatus){
-                                                    sel += "checked='checked'";
-                                                }
-                                                sel += "/>" + player.username + "</label>";
-
-                                                $($('#usershow')[0]).append(sel);
-                                            });
+                                            console.log(json);
+                                            onlineList(json);
                                         }
                                     });
                                     socket.on('disconnect', function(){
+                                        $($('#showloginuser')[0]).text('[]');
                                         $($('#loginshow')[0]).text("user logout game");
-                                        $($('#usershow')[0]).children().remove();
+                                        offlineList();
+                                        socket=null;
                                     });
                                 }
                             }

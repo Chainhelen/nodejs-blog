@@ -47,7 +47,6 @@ exports.userlogin = function(req, res){
         return ;
     }*/
 
-    logger.LOG('debug', 'gamedb.userFindname', null, null);
     gamedb.userFindByName(req.body.username, function(err, obj){
         if(err){
             res.json({
@@ -133,7 +132,7 @@ exports.userreg = function(req, res){
                     res.json({
                         result: result["userregsuccess"]
                     });
-                    logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' reg sucessfully', null, null);
+                    logger.LOG('info', 'user ' + JSON.stringify(postobj) + ' reg sucessfully', null, null);
                 }
             });
         }

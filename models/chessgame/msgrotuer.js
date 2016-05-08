@@ -122,7 +122,13 @@ exports.StartGameListen = function(io) {
             newloginuser : cursocket.decoded_token.username,
             allplayers   : broadcastplayers
         });*/
-        logger.LOG('info', 'broadcast emit' + JSON.stringify(broadcastplayers) , null , null);
+        logger.LOG('debug', 'broadcast emit' + JSON.stringify(broadcastplayers) , null , null);
+
+        cursocket.on('system', function(json){
+            if(json.type == 'userlogout'){
+                cursocket.disconnect(true);
+            }
+        });
 
         cursocket.on('disconnect', function(){
             logger.LOG('info', 'curplayer disconnect ' + curinfo.player.getName() , null , null);
@@ -131,9 +137,11 @@ exports.StartGameListen = function(io) {
 
             broadcastplayers.forEach(function(player){
                 if(player.username == curinfo.player.getName()){
-                    player.status = DS.PlayerStatus["OffLineStatus"];
+                    player.curstatus = DS.PlayerStatus["OffLineStatus"];
                 }
             });
+
+            logger.LOG('debug', 'gamectrset.players ' + JSON.stringify(broadcastplayers) , null , null);
 
             gamectrset.sockets.forEach(function(socket){
                 socket.emit('system', {
