@@ -65,7 +65,7 @@ exports.userlogin = function(req, res){
 
             logger.LOG('debug', 'user from post is ' +  JSON.stringify(postobj), null, null);
             logger.LOG('debug', 'user from db   is ' +  JSON.stringify(obj)     , null, null);
-            if(postobj.md5password == obj.md5password){
+            if(obj && postobj.md5password == obj.md5password){
                 // TODO: validate the actual user user
                 var profile = {
                     username: req.body.username
@@ -78,7 +78,7 @@ exports.userlogin = function(req, res){
                     username : req.body.username,
                     token : token
                 });
-                logger.LOG('info', 'user ' + JSON.stringify(req.body) + ' post login sucessfully', null, null);
+                logger.LOG('info', 'user ' + req.body.username + ' post login sucessfully', null, null);
             } else {
                 res.json({
                     result:result["userloginpasswdwrong"]

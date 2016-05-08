@@ -47,7 +47,7 @@ exports.index = function(req, res, next){
 				username : "chainhelen",
    	        	blogitems : databaseBlogs,
 				warrings : warring,
-                haslogin : (req.session.user.username == "chainhelen" ? "chainhelen" : null)
+                haslogin : ((req.session.user && req.session.user.username == "chainhelen")? "chainhelen" : null)
         	});
 		});
     }else{ // data

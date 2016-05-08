@@ -34,7 +34,7 @@
             <label for="username">username</label>
             <input type="text" name="username" value="222">
             <label for="password">password</label>
-            <input type="password" name="password" value="333">
+            <input type="password" name="password" value="222">
             <label id="regshow"></label>
         </div>
         <div class="ctrset">
@@ -42,11 +42,11 @@
             <label for="username">username</label>
             <input type="text" name="username" value="222">
             <label for="password">password</label>
-            <input type="password" name="password" value="333">
+            <input type="password" name="password" value="222">
             <label id="loginshow"></label>
         </div>
+        <label>userlist:</label>
         <div id="usershow">
-            <label>userlist:</label>
         </div>
     </body>
     <script type="text/javascript">
@@ -105,7 +105,8 @@ $($('#loginshow')[0])
                                     loginbtnwait = lun($($('#loginshow')[0]), 'use is ok and try login game');
                                     loginbtnwait.terval();
                                 } else {
-                                        $($('#loginshow')[0]).text(data.result);
+                                    console.log('log failed');
+                                    $($('#loginshow')[0]).text(data.result);
                                 }
                                 if(null != data.username && "undefined" != typeof(data.username)){
                                     var socket = io.connect('http://<%= target.host %>:<%= target.port %>/chessgame', {
@@ -113,13 +114,35 @@ $($('#loginshow')[0])
                                             });
                                     socket.on('system', function(json){
                                         if(json.type == 'loginsucess'){
+                                            console.log(json.type);
                                             loginbtnwait.stopter();
                                             $($('#loginshow')[0]).text("user login game sucessfully");
                                             $($('#showloginuser')[0]).text(data.username);
                                         } else if(json.type == 'newuserlogin'){
+                                            console.log(json.type);
+                                            $($('#usershow')[0]).children().remove();
                                             json.allplayers.forEach(function(player){
+                                                var sel = "<label><input type='radio' name=";
+                                                sel += "'" + player.username + "'";
+                                                sel += " value='";
+                                                sel += (player.username + "'");
+                                                if(2 == player.curstatus){
+                                                    sel += "checked='checked'";
+                                                }
+                                                sel += "/>" + player.username + "</label>";
 
-                                                var sel = "<label><input type='radio' name='user' value='";
+                                                $($('#usershow')[0]).append(sel);
+                                            });
+                                        } else if (json.type == 'userotherplacelogin'){
+                                            console.log(json.type);
+                                            $($('#showloginuser')[0]).text('[your account login in other place, here logout]');
+                                        } else if (json.type == 'userlogout'){
+                                            console.log(json.type);
+                                            $($('#usershow')[0]).children().remove();
+                                            json.allplayers.forEach(function(player){
+                                                var sel = "<label><input type='radio' name=";
+                                                sel += "'" + player.username + "'";
+                                                sel += " value='";
                                                 sel += (player.username + "'");
                                                 if(2 == player.curstatus){
                                                     sel += "checked='checked'";
@@ -132,7 +155,7 @@ $($('#loginshow')[0])
                                     });
                                     socket.on('disconnect', function(){
                                         $($('#loginshow')[0]).text("user logout game");
-                                        $($('#showloginuser')[0]).text('[]');
+                                        $($('#usershow')[0]).children().remove();
                                     });
                                 }
                             }

@@ -1,4 +1,4 @@
-var db = require('./db').getChessgameDB();
+var db = require('./db').getChessgameDBCon();
 var Schema = db.Schema;
 
 var gameUserSchema = new Schema({

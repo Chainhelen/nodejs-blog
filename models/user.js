@@ -1,4 +1,4 @@
-var db = require('./db').getBlogDB();
+var db = require('./db').getBlogDBCon();
 var Schema = db.Schema;
 var userSchema = new Schema({
 	username: String,
