@@ -23,10 +23,12 @@ DS.GameStatus = {
 //player status
 DS.PlayerStatus = {
     "OffLineStatus" :                        1,
-    "OnLineStatus"  :                        2,
-    "GameRunningStatus" :                    3, 
-    "PauseGameRunningStatus" :               4,
-    "ExceptionStatus" :                      5
+    "ExceptionStatus" :                      2,
+    "OnLineStatus"  :                        3,
+    "HostWaitForGuest":                      4,
+    "GuestWaitForHost":                      5,
+    "GameRunningStatus" :                    6, 
+    "PauseGameRunningStatus" :               7
 };
 
 //chess room status
@@ -37,6 +39,9 @@ DS.ChessRoomStatus = {
     "GameRoomExceptionStatus":           3
 }
 
+//ms
+// or DS.WaitTime = 30000;
+DS.WaitTime = "30000ms";
 
 /*
 DS.Auth = {

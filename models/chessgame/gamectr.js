@@ -20,7 +20,6 @@ var GameCtr      = {};
 var GameCtrSet = function(){
     this.players = [];
     this.chessrooms = [];
-    this.sockets = [];
 };
 
 /* name      : GameCtrSet.prototype.getPlayer
@@ -159,30 +158,6 @@ GameCtrSet.prototype.removeChessRoom = function(chessroomid){
     for(var i = 0;i < this.chessrooms.length;i++){
         if(this.chessrooms[i].id == chessroomid){
             return ArrayRemove(this.chessrooms, i);
-        }
-    }
-    return false;
-}
-
-/* name      : GameCtrSet.prototype.addSocket
- * function  : GameCtrSet Class add socket object to sockets array
- * parameter : socket object that will be added 
- * return    : void
-*/
-GameCtrSet.prototype.addSocket = function(socket){
-    this.sockets.push(socket);
-}
-
-/* name      : GameCtrSet.prototype.removeSocket
- * function  : GameCtrSet Class remove chessroom object from chessrooms array
- * parameter : the id of chessroom object that will be removed 
- * return    : false if failed
- *             true if success
-*/
-GameCtrSet.prototype.removeSocket = function(socketid){
-    for(var i = 0;i < this.sockets.length;i++){
-        if(this.sockets[i].id == socketid){
-            return ArrayRemove(this.sockets, i);
         }
     }
     return false;

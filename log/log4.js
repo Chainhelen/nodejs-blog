@@ -38,7 +38,7 @@ exports.log = function(name){
                 logger.fatal(showstring);
             }
         }
-        if(null == callbackparameter || null != callback){
+        if(!callbackparameter || callback){
             return;
         }
         callback(callbackparameter);

@@ -280,4 +280,5 @@ function doLoginGame(cursocket, gamectrset, logingamemsg){
 }
 ```
 
-　　　
+# License
+MIT

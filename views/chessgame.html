@@ -17,10 +17,16 @@
                     margin-bottom:20px;
             }
             #usershowdiv {
-                display:none
+                opacity:0
             }
             #choosestartgamediv {
-                display:none
+                opacity:0
+            }
+            #gameinviteshow{
+                opacity:0
+            }
+            #gameinvitebutton{
+                opacity:0
             }
         </style>
         <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
@@ -51,6 +57,7 @@
             <input type="password" name="password" value=""/>
             <label id="loginshow"></label>
         </div>
+        <br/>
         <div class="ctrset" id="usershowdiv">
             <label>current online user list:</label>
             <div id="usershow">
@@ -58,16 +65,44 @@
         </div>
         <br/>
         <div class="ctrset" id="choosestartgamediv">
-            <label>invite user </label>
+            <label>invite other user </label>
             <select id="otheruserlist">
             </select>
             <label>to gameroom</label>
-            <input type="serarch" placeholder="give a room name"/>
-            <button>click to send</button>
+            <input id="createroom" type="serarch" placeholder="give a room name"/>
+            <button id="invite">click to send</button>
+            <br/>
+            <br/>
+            <div id="gameinviteshow">
+                invitation result : <label id="gameinviteshowlabel"></label>
+            </div>
+            <div id="gameinvitebutton">
+                <button id="gameinvitebuttonyes">yes</button>
+                <button id="gameinvitebuttonno">no</button>
+                <label id="gameinvitebuttontime"></label>
+            </div>
+        </div>
+        <div id="gamecanvasdiv" style="text-align:center;position:fixed;top:30px;width:100%;z-index:-1">
+            <canvas id="can" width="460px" height="510px">you browser don't support the canvas</canvas>
         </div>
     </body>
     <script type="text/javascript">
-$($('#loginshow')[0])
+        var playerstatus = {
+            "OffLineStatus" :                        1,
+            "ExceptionStatus" :                      2,
+            "OnLineStatus"  :                        3,
+            "HostWaitForGuest":                      4,
+            "GuestWaitForHost":                      5,
+            "GameRunningStatus" :                    6, 
+            "PauseGameRunningStatus" :               7
+        };
+        function includejs(path){ 
+            var a=document.createElement("script");
+            a.type = "text/javascript"; 
+            a.src=path; 
+            var head=document.getElementsByTagName("head")[0];
+            head.appendChild(a);
+        }
         $(document).ready(function(){
             var lun = function(show, showstr){
                 var str = '';
@@ -88,24 +123,36 @@ $($('#loginshow')[0])
                 }
             };
             function onlineList(json){
-                $('#usershowdiv').css({display: 'block'});
+                $('#usershowdiv').css({opacity: 1});
+                $('#choosestartgamediv').css({opacity: 1});
+
                 $($('#usershow')[0]).children().remove();
+                $($('#otheruserlist')[0]).children().remove();
                 json.allplayers.forEach(function(player){
                     var sel = "<label><input type='radio' name=";
                     sel += "'" + player.username + "'";
                     sel += " value='";
                     sel += (player.username + "'");
-                    if(2 == player.curstatus){
+                    if(playerstatus["OffLineStatus"] != player.curstatus && 
+                            playerstatus["ExceptionStatus"] != player.curstatus){
                         sel += "checked='checked'";
                     }
                     sel += " disabled/>" + player.username + "</label>";
-
                     $($('#usershow')[0]).append(sel);
+
+                    if(player.username != json.curuser){
+                        var opt = "<option value=";
+                        opt += "'" + player.username + "'";
+                        opt += ">" + player.username + "</option>";
+                        $('#otheruserlist').append(opt);
+                    }
                 });
             }
             function offlineList(){
                 $($('#usershow')[0]).children().remove();
-                $('#usershowdiv').css({display: 'none'});
+                $($('#otheruserlist')[0]).children().remove();
+                $('#usershowdiv').css({opacity: 0});
+                $('#choosestartgamediv').css({opacity: 0});
             }
             (function(){
                 //user register
@@ -143,7 +190,6 @@ $($('#loginshow')[0])
                                     loginbtnwait.terval();
                                     offlineList();
                                 } else {
-                                    console.log('log failed');
                                     $($('#loginshow')[0]).text(data.result);
                                     offlineList();
                                 }
@@ -161,26 +207,100 @@ $($('#loginshow')[0])
                                             loginbtnwait.stopter();
                                             $($('#loginshow')[0]).text("user login game sucessfully");
                                             $($('#showloginuser')[0]).text(data.username);
+                                            initInvite(socket);
                                         } else if(json.type == 'newuserlogin'){
                                             onlineList(json);
                                         } else if (json.type == 'userotherplacelogin'){
-                                            $($('#showloginuser')[0]).text('[your account login in other place]');
                                             offlineList();
+                                            $($('#showloginuser')[0]).text('[your account login in other place]');
                                         } else if (json.type == 'userlogout'){
-                                            console.log(json);
                                             onlineList(json);
                                         }
                                     });
                                     socket.on('disconnect', function(){
-                                        $($('#showloginuser')[0]).text('[]');
                                         $($('#loginshow')[0]).text("user logout game");
+                                        var showloginuserstring = $($('#showloginuser')[0]).text();
                                         offlineList();
+                                        if(showloginuserstring == '[your account login in other place]'){
+                                            $($('#showloginuser')[0]).text('[your account login in other place]');
+                                        } else {
+                                            $($('#showloginuser')[0]).text('[]');
+                                        }
                                         socket=null;
                                     });
                                 }
                             }
                           )
                 });
+                function initInvite(socket){
+                    $('#invite').click(function(){
+                        if("" == $("#createroom").val()){
+                            alert("please enter room name");
+                        }
+                        if(socket){
+                            socket.emit('invite', {
+                                type       : 'invite other to the room',
+                                otheruser  : $("#otheruserlist").val(),
+                                roomname   : $("#createroom").val()
+                            });
+                        }
+                    });
+                    $('#gameinvitebuttonyes').click(function(){
+                        if(socket){
+                            console.log("accept the invitation");
+                            socket.emit('invite', {
+                                type       : 'accept the invitation'
+                            });
+                        }
+                    });
+                    $('#gameinvitebuttonno').click(function(){
+                        if(socket){
+                            socket.emit('invite', {
+                                type       : "don't accept the invitation"
+                            });
+                        }
+                    });
+                    
+                    if(socket){
+                        socket.on('invite', function(json){
+                            if(json.type == "can't invite yourself"){
+                                $("#gameinviteshow").css({opacity:1});
+                                $('#gameinviteshowlabel').text("cant invite yourself");
+                            } else if (json.type == "your room is wrong"){
+                                $("#gameinviteshow").css({opacity:1});
+                                $('#gameinviteshowlabel').text("your room is wrong");
+                            } else if (json.type == "your invited user is offline"){
+                                $("#gameinviteshow").css({opacity:1});
+                                $('#gameinviteshowlabel').text("your invited user " + json.invitedusername + " is offline");
+                            } else if (json.type == "your invited user doesn't exist"){
+                                $("#gameinviteshow").css({opacity:1});
+                                $('#gameinviteshowlabel').text("your invited user " + json.invitedusername + " doesn't exist");
+                            } else if (json.type == "send invitation successfully"){
+                                $("#gameinviteshow").css({opacity:1});
+                                $('#gameinviteshowlabel').text("send invitation successfully " + 
+                                        "username :" + json.invitedusername + "; room :" + json.room);
+                            } else if(json.type == 'you are invited'){
+                                $("#gameinviteshow").css({opacity:1});
+                                $("#gameinvitebutton").css({opacity:1});
+                                $('#gameinviteshowlabel').text("your are invited by user " + json.host + " to " + json.room);
+                            } else if(json.type == 'timer'){
+                                $("#gameinvitebuttontime").text(json.time_left + 's are left');
+                            } else if(json.type == 'no time left' || json.type == "stop game"){
+                                $("#gameinviteshow").css({opacity:0});
+                                $("#gameinvitebutton").css({opacity:0});
+                            } else if(json.type == "the user don't accept the game"){
+                                $('#gameinviteshowlabel').text("the user don't accept the game");
+                            } else if(json.type == 'start game'){
+                                $('#gameinviteshowlabel').text("start the game");
+                                $("#gameinvitebutton").css({opacity:0});
+                                includejs('/javascripts/chessgame/chesspaint.js');
+                            } else {
+                                console.log('Error ');
+                            }
+                        });
+                    }
+                }
+                includejs('/javascripts/chessgame/chesspaint.js');
             })();
         });
     </script>

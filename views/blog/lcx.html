@@ -680,6 +680,11 @@ int client_connect(int sockfd,char* server,int port)
              </div>
             <div style="clear:both"></div>
         </div>
+        <div class="content">
+            <div class="small-title"><p>用处:</p></div>
+            <div class="small-content"><p>在服务器Ｃ上做映射端口a<->b. <br/>Ａ，B主机处于不同的网络中，B主机植入反向代理后门并连接C:b，主机A连接C:a</p></div>
+            <div style="clear:both"></div>
+        </div>
         <% var SignatureTime = "2015.06.05" %>
         <% include ./models/Signature.html %>
     </div>
