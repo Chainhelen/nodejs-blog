@@ -14,10 +14,26 @@
 	</head>
 	<body>
 		<canvas id="myCanvas" width="490" height="220"></canvas>
+        <button id="sharebtn">base64分享按钮</button>
 		<script type="text/javascript" src="/javascripts/base64.js"></script>
 		<script type="text/javascript" src="/javascripts/jquery.js"></script>
 		<script type="text/javascript" src="/javascripts/paint/paint.js"></script>
 		<script type="text/javascript" src="/javascripts/paint/hash.js"></script>
-		<script type="text/javascript" src="/javascripts/ga.js"></script>
+        <script type="text/javascript" src="http://demo.jb51.net/js/ZeroClipboard/ZeroClipboard.js"></script>
+		<script type="text/javascript">
+            $(document).ready(function(){
+                ZeroClipboard.setMoviePath("http://demo.jb51.net/js/ZeroClipboard/ZeroClipboard.swf");
+                var clip = new ZeroClipboard.Client(); // 新建一个对象
+                clip.addEventListener( "mouseOver", function(client) {  
+                    clip.setText(window.location.href); // 设置要复制的文本。
+                });   
+                clip.addEventListener( "mouseUp", function(client) {
+                    alert("复制URL成功，可分享你的作品\n另外可使用第三方短域名服务压缩URL");
+                });
+                clip.glue("sharebtn"); // 和上一句位置不可调换
+
+            });
+        </script>
+        <!--		<script type="text/javascript" src="/javascripts/ga.js"></script>-->
 	</body>
 </html>
