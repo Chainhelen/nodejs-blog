@@ -4,6 +4,15 @@
 var blog = require('./blog.js');
 var wsinfo = require('../models/wsInfo.js');
 
+exports.particle = function(req, res) {
+    res.render('particle');
+};
+
+exports.helloworld = function(req, res) {
+    res.render('helloworld');
+};
+
+
 exports.oldindex = function(req, res) {
     res.render('oldindex');
 };

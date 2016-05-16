@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<style>
+       html,body{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;}
+    #cas {
+        display: block;
+        margin: auto;
+            margin-top:5%;
+        box-shadow:0px -5px 18px rgb(203, 201, 204);
+    }</style>
+<script>
+    window.onload = function () {
+        canvas = document.getElementById("cas");
+        context = canvas.getContext('2d');
+        focallength = 2500;
+
+        MaxAngleX = 90;
+        MaxAngleY = 1.3;
+
+//        var dots = getimgData(document.getElementById('name').value);
+        var dots = getimgData("LOVE 钱");
+        var boomPause = false;
+        var rotatePause = false;
+        var recoverPause = false;
+        var controlRadio = 0.05;
+        var angleX = 0;
+        var angleY = 0;
+
+        initAnimate();
+
+        function initAnimate() {
+            dots.forEach(function () {
+                this.tx = Math.random() * canvas.width;
+                this.ty = Math.random() * canvas.height;
+                this.tz = Math.random() * focallength * 2 - focallength;
+                this.paint();
+            });
+            setTimeout(function(){boomAnimate();}, 3000);
+        }
+       
+        function recoverStartAnimate(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            var cpdots = [];
+            dots.forEach(function(){
+                var dot = this;
+                if(dot.x < 0 || dot.x > canvas.width || dot.y < 0 || dot.y > canvas.height){
+                }else{
+                    cpdots.push(dot);
+                }
+            });
+            dots = cpdots;
+            recoverAnimate();
+        }
+
+        function recoverAnimate(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            dots.forEach(function(){
+                var dot = this;
+                if(Math.abs(dot.z - 0.0) < 0.1 && Math.abs(dot.radius - 1.0) <= 0.1){
+                    recoverPause = true;
+                }else{
+                    dot.z = dot.z - dot.z * 0.3;
+                    dot.radius = dot.radius + (1 - dot.radius) * 0.3
+                    recoverPause = false;
+                }
+                if(dot.radius < 1){
+                    dot.radius = 1;
+                }
+                dot.paint();
+            });
+            console.log(dots[0].z, dots[0].radius);
+            if (!recoverPause) {
+                if ("requestAnimationFrame" in window) {
+                    requestAnimationFrame(recoverAnimate);
+                }
+                else if ("webkitRequestAnimationFrame" in window) {
+                    webkitRequestAnimationFrame(recoverAnimate);
+                }
+                else if ("msRequestAnimationFrame" in window) {
+                    msRequestAnimationFrame(recoverAnimate);
+                }
+                else if ("mozRequestAnimationFrame" in window) {
+                    mozRequestAnimationFrame(recoverAnimate);
+                }
+            }else{
+                console.log("hw");
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                var cpdots = [];
+                for(var i = 0;i < dots.length;i++){
+                    var x = dots[i].x;
+                    var y = dots[i].y;
+                    var xa = Math.random() * 2 - 1;
+                    var ya = Math.random() * 2 - 1;
+
+                    cpdots.push({
+                        x: x,
+                        y: y,
+                        xa: xa,
+                        ya: ya,
+                        max: 6000
+                    });
+                }
+                spliderAnimate(canvas, context, cpdots, controlRadio);
+            }
+        }
+
+        function rotateAnimate(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            dots.forEach(function(){
+                var dot = this;
+                if(Math.abs(angleY - MaxAngleY) < 0.1){
+                    rotatePause = true;
+                } else {
+                    rotateY(dot, (MaxAngleY - angleY) * 0.01);
+                    rotatePause = false;
+                }
+                dot.paint();
+            });
+            angleY = angleY + (MaxAngleY - angleY) * 0.01;
+
+            if (!rotatePause) {
+                if ("requestAnimationFrame" in window) {
+                    requestAnimationFrame(rotateAnimate);
+                }
+                else if ("webkitRequestAnimationFrame" in window) {
+                    webkitRequestAnimationFrame(rotateAnimate);
+                }
+                else if ("msRequestAnimationFrame" in window) {
+                    msRequestAnimationFrame(rotateAnimate);
+                }
+                else if ("mozRequestAnimationFrame" in window) {
+                    mozRequestAnimationFrame(rotateAnimate);
+                }
+            }else{
+                    recoverStartAnimate();
+            }
+        }
+
+        function boomAnimate(){
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            dots.forEach(function(){
+                var dot = this;
+                if(Math.abs(dot.tx - dot.x) < 0.1 && Math.abs(dot.ty - dot.y) < 0.1 && Math.abs(dot.tz - dot.z) < 0.1){
+                    dot.x = dot.tx;
+                    dot.y = dot.ty;
+                    dot.z = dot.tz;
+                    boomPause = true;
+
+                } else {
+                    dot.x = dot.x + (dot.tx - dot.x) * 0.1;
+                    dot.y = dot.y + (dot.ty - dot.y) * 0.1;
+                    dot.z = dot.z + (dot.tz - dot.z) * 0.1;
+                    boomPause = false;
+                }
+                dot.paint();
+            });
+            if (!boomPause) {
+                if ("requestAnimationFrame" in window) {
+                    requestAnimationFrame(boomAnimate);
+                }
+                else if ("webkitRequestAnimationFrame" in window) {
+                    webkitRequestAnimationFrame(boomAnimate);
+                }
+                else if ("msRequestAnimationFrame" in window) {
+                    msRequestAnimationFrame(boomAnimate);
+                }
+                else if ("mozRequestAnimationFrame" in window) {
+                    mozRequestAnimationFrame(boomAnimate);
+                }
+            }else{
+                rotateAnimate();
+            }
+        }
+    }
+    Array.prototype.forEach = function(callback){
+        for(var i = 0;i < this.length;i++){
+				callback.call(this[i]);
+        }
+    }
+
+    function rotateX(dot, angleX){
+        var cos = Math.cos(angleX);
+        var sin = Math.sin(angleX);
+        var y = dot.y * cos - dot.z * sin;
+        var z = dot.z * cos + dot.y * sin;
+        dot.y = y;
+        dot.z = z;
+    }
+
+    function rotateY(dot, angleY){
+        var cos = Math.cos(angleY);
+        var sin = Math.sin(angleY);
+        var x = dot.x * cos - dot.z * sin;
+        var z = dot.z * cos + dot.x * sin;
+        dot.x = x;
+        dot.z = z;
+    }
+
+    function getimgData(text) {
+        drawText(text);
+        var imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        var dots = [];
+        var r = 3;
+        for (var x = 0; x < imgData.width; x += r * 2) {
+            for (var y = 0; y < imgData.height; y += r * 2) {
+                var i = (y * imgData.width + x) * 4;
+                if (imgData.data[i] >= 128) {
+                    var dot = new Dot(x - r, y - r, 0, r);
+                    dots.push(dot);
+                }
+            }
+        }
+        return dots;
+    }
+
+    function drawText(text){
+		context.save();
+		context.font = "200px 微软雅黑 bold";
+		context.fillStyle = "rgba(168, 168, 168, 1)";
+        context.textAlign = "center";
+		context.textBaseline = "middle";
+		context.fillText(text, canvas.width / 2, canvas.height / 2);
+		context.restore();
+	}
+
+
+    var Dot = function (centerX, centerY, centerZ, radius) {
+        this.tx = 0;
+        this.ty = 0;
+        this.tz = 0;
+        this.z = centerZ;
+        this.x = centerX;
+        this.y = centerY;
+        this.radius = radius;
+    }
+
+    Dot.prototype = {
+        paint: function () {
+            context.save();
+            context.beginPath();
+            var scale = focallength / (focallength + this.z);
+            if(this.radius * scale > 0){ 
+                context.arc(canvas.width / 2 + (this.x - canvas.width / 2) * scale, canvas.height / 2 + (this.y - canvas.height / 2) * scale, this.radius * scale, 0, 2 * Math.PI);
+            }
+            context.fillStyle = "rgba(50,50,50," + scale + ")";
+            context.fill();
+            context.restore();
+        }
+    }
+
+    function spliderAnimate(canvas, ctx, cpdots, controlRadio){
+
+        var RAF = (function () {
+            return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || function (callback) {
+                window.setTimeout(callback, 1000 / 60);
+            };
+        })();
+        // 鼠标活动时，获取鼠标坐标
+        var warea = {x: null, y: null, max: 20000};
+        window.onmousemove = function(e){
+            e = e || window.event;
+
+            warea.x = null;
+            warea.y = null;
+        };
+        window.onmouseout = function(e){
+            warea.x = null;
+            warea.y = null;
+        };
+        setTimeout(function(){
+            spliderInAnimate();
+        }, 100);
+        function spliderInAnimate(){
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            var ndots  = [warea].concat(cpdots);
+            controlRadio *= Math.sqrt(1.3);
+            if(controlRadio > 1){
+                controlRadio = 1;
+            }
+            cpdots.forEach(function(){
+                var dot = this;
+                dot.x += dot.xa;
+                dot.y += dot.ya;
+                dot.xa *= (dot.x > canvas.width || dot.x < 0)? -1 : 1;
+                dot.ya *= (dot.y > canvas.height || dot.y < 0)? -1 : 1;
+                ctx.fillRect(dot.x - 0.5, dot.y - 0.5, 1, 1);
+                for (var i = 0; i < ndots.length; i++) {
+                    var d2 = ndots[i];
+                    if (dot === d2 || d2.x === null || d2.y === null) continue;
+                    var xc = dot.x - d2.x;
+                    var yc = dot.y - d2.y;
+                    var dis = xc * xc + yc * yc;
+                    var ratio;
+                    if(dis < d2.max){
+                        if (d2 === warea && dis > (d2.max / 2)) {
+                            dot.x -= xc * 0.03;
+                            dot.y -= yc * 0.03;
+                        }
+                        ratio = (d2.max - dis) / d2.max * controlRadio;
+                        ctx.beginPath();
+                        ctx.lineWidth = ratio/2;
+                        ctx.strokeStyle = 'rgba(0,0,0,' + (ratio + 0.2) + ')';
+                        ctx.moveTo(dot.x , dot.y);
+                        ctx.lineTo(d2.x , d2.y);
+                        ctx.stroke();
+                    }
+                }
+                ndots.splice(ndots.indexOf(dot), 1);
+            });
+            RAF(spliderInAnimate);
+        }
+    }
+</script>
+<title>liushuhui</title>
+</head>
+<body>
+    <canvas id='cas' width="1000" height="500">浏览器不支持canvas</canvas>
+</body>
+</html>

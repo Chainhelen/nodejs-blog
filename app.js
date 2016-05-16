@@ -80,6 +80,8 @@ app.post('/chessgame/userreg', chessgame.userreg);
 app.post('/chessgame/userunreg', chessgame.userunreg);
 
 app.get('/mapbox', routes.mapbox);
+app.get('/helloworld', routes.helloworld);
+app.get('/particle', routes.particle);
 app.get('/baidumap',routes.baidumap);
 app.get('/unity', sina.unity);
 app.get('/cv', routes.cv);
