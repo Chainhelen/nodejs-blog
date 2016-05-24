@@ -1,5 +1,16 @@
 $("#gamecanvasdiv").css({"z-index": 3});
 
+function deepcopyarray(obj) {
+    var out = [],i = 0,len = obj.length;
+    for (; i < len; i++) {
+        if (obj[i] instanceof Array){
+            out[i] = deepcopyarray(obj[i]);
+        }
+        else out[i] = obj[i];
+    }
+    return out;
+}
+
 var chesspaint = {
     width : 0,
     height: 0,
@@ -9,7 +20,25 @@ var chesspaint = {
     ishost: true,
     manradius: 0,
     ctx : can.getContext('2d'),
-    can : document.getElementById("can")
+    can : document.getElementById("can"),
+    flashcir : null
+};
+
+var chessmap = {
+    'ch': "車",
+    'cc': "車",
+    'mh': "馬",
+    'mc': "馬",
+    'Xh': "相",
+    'xc': "象",
+    'Sh': "仕",
+    'sc': "士",
+    'ph': "炮",
+    'pc': "炮",
+    'bh': "兵",
+    'zc': "卒",
+    'Jh': "帥",
+    'jc': "將"
 };
 
 chesspaint.init = function(){
@@ -29,6 +58,11 @@ chesspaint.init = function(){
 }
 
 chesspaint.drawBackground = function(){
+    this.ctx.save();
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.restore();
+
     for(var i = 0;i < 2;i++){
         var prex = this.margin + i * (this.width - 2 * this.margin);
         var prey = this.margin + 0;
@@ -123,16 +157,26 @@ chesspaint.drawBackground = function(){
     }
 };
 
-chesspaint.drawChessman = function(){
+
+chesspaint.drawSingleChessman = function(){
     this.ctx.save();
     var obj = arguments[0];
 
     if("object" == typeof obj){
+        if('undefined' == typeof chessmap[obj.type]){
+            return;
+        }
         var x = ("number" == typeof(obj.x) ? obj.x : 0);
         var y = ("number" == typeof(obj.y) ? obj.y : 0);
+        var ny, nx = 0;
 
-        var nx = this.margin + x * this.cellwidth;
-        var ny = this.margin + (9 - y)  * this.cellheight;
+        if(!obj.ishost){
+            nx = this.margin + x * this.cellwidth;
+            ny = this.margin + y * this.cellheight;
+        } else {
+            nx = this.margin + (8 - x) * this.cellwidth;
+            ny = this.margin + (9 - y) * this.cellheight;
+        }
 
         this.ctx.beginPath();
         this.ctx.arc(nx, ny, this.manradius, 0, 2 * Math.PI);
@@ -148,91 +192,104 @@ chesspaint.drawChessman = function(){
         this.ctx.textBaseline = 'middle';//设置文本的垂直对齐方式
         this.ctx.textAlign = 'center'; //设置文本的水平对对齐方式
 
-        if(obj.curHost){
+        if('h' == obj.type[1]){
             this.ctx.fillStyle="red"; 
         } else {
-            this.ctx.fillStyle="bule"; 
+            this.ctx.fillStyle="black"; 
         }
 
         this.ctx.translate(nx, ny);
-        switch (obj.type)
-        {
-            case 'c':
-                this.ctx.fillText("車", 0, 0);
-                break;
-            case 'm':
-                this.ctx.fillText("馬", 0, 0);
-                break;
-            case 'X':
-                this.ctx.fillText("相", 0, 0);
-                break;
-            case 'x':
-                this.ctx.fillText("象", 0, 0);
-                break;
-            case 'S':
-                this.ctx.fillText("仕", 0, 0);
-                break;
-            case 's':
-                this.ctx.fillText("士", 0, 0);
-                break;
-            case 'p':
-                this.ctx.fillText("炮", 0, 0);
-                break;
-            case 'b':
-                this.ctx.fillText("兵", 0, 0);
-                break;
-            case 'z':
-                this.ctx.fillText("卒", 0, 0);
-                break;
-            case 'J':
-                this.ctx.fillText("帥", 0, 0);
-                break;
-            case 'j':
-                this.ctx.fillText("將", 0, 0);
-                break;
-
-        }
+        this.ctx.fillText(chessmap[obj.type], 0, 0);
         this.ctx.restore();
     }
     this.ctx.stroke();
     this.ctx.restore();
 };
 
-chesspaint.init({ishost:true});
-chesspaint.drawBackground();
+chesspaint.drawGlobalChessman = function(basemap){
+    for(var i = 0, wlen = basemap.length;i < wlen;i++){
+        for(var j = 0, hlen = basemap[i].length;j < hlen;j++){
+            var x = j, y = i;
+            chesspaint.drawSingleChessman({
+                x: x,
+                y: y,
+                isHost: this.ishost,
+                type: basemap[i][j]
+            });
+        }
+    }
+};
 
-var base = [
-    ['c', 'm', 'X', 'S', 'J', 'S', 'X', 'm', 'c'],
-    ['*', '*', '*', '*', '*', '*', '*', '*', '*'],
-    ['*', 'p', '*', '*', '*', '*', '*', 'p', '*'],
-    ['b', '*', 'b', '*', 'b', '*', 'b', '*', 'b'],
+chesspaint.unDrawSomeChessman = function(basemap, flashchessman){
+    var flasharr = [];
+    if( flashchessman instanceof Array){
+        flasharr = flashchessman;
+    } else if(flashchessman instanceof Object){
+        flasharr.push(flashchessman);
+    } else {
+        console.log('Error in unDrawSomeChessman');
+    }
+    var basemaptemp = deepcopyarray(basemap);
+
+    for(var k = 0, flen = flasharr.length;k < flen;k++){
+        var p = flasharr[k];
+        basemaptemp[p.x][p.y] = '**';
+    }
+
+    chesspaint.drawGlobalChessman(basemaptemp);
+};
+
+chesspaint.startFlashChessman = function(basemap, flashchessman){
+    var handler = [];
+    var i = 0; 
+
+    handler.push(this.drawGlobalChessman);
+    handler.push(this.unDrawSomeChessman);
+
+    flashcir = setInterval(function(){
+        chesspaint.drawBackground();
+        try{
+            handler[i](basemap.slice(0), flashchessman);
+        }catch(e){
+            console.log(e);
+        }
+        i++;
+        i %= handler.length;
+    }, 600);
+};
+
+chesspaint.stopFlashChessman = function(){
+    clearInterval(flashcir);
+}
+
+
+var basemap = [
+    ['cc', 'mc', 'xc', 'sc', 'jc', 'sc', 'xc', 'mc', 'cc'],
+    [],
+    ['**', 'pc', '**', '**', '**', '**', '**', 'pc', '**'],
+    ['zc', '**', 'zc', '**', 'zc', '**', 'zc', '**', 'zc'],
     [],
     [],
-    ['z', '*', 'z', '*', 'z', '*', 'z', '*', 'z'],
-    ['*', 'p', '*', '*', '*', '*', '*', 'p', '*'],
-    ['*', '*', '*', '*', '*', '*', '*', '*', '*'],
-    ['c', 'm', 'x', 's', 'j', 's', 'x', 'm', 'c'],
+    ['bh', '**', 'bh', '**', 'bh', '**', 'bh', '**', 'bh'],
+    ['**', 'ph', '**', '**', '**', '**', '**', 'ph', '**'],
+    [],
+    ['ch', 'mh', 'Xh', 'Sh', 'Jh', 'Sh', 'Xh', 'mh', 'ch'],
 ];
 
-for(var i = 0;i < base.length;i++){
-    for(var j = 0;j < base[i].length;j++){
-        var curHost = (i <= 4 ? true : false);
-        chesspaint.drawChessman({
-            x:i,
-            y:j,
-            curHost:curHost,
-            type:base[i][j]
-        });
-    }
-}
+
+chesspaint.init({ishost:true});
+chesspaint.drawBackground();
+//chesspaint.drawGlobalChessman(basemap);
+//chesspaint.unDrawSomeChessman(basemap, [{x : 0, y : 0}, {x : 2, y : 1}]);
+chesspaint.startFlashChessman(basemap, [{x : 0, y : 0}, {x : 2, y : 1}]);
 /*
-chesspaint.drawChessman({
+chesspaint.drawSingleChessman({
     x:0,
     y:0,
     curHost:true,
     type:'c'
 });
-chesspaint.drawChessman({
+chesspaint.drawSingleChessman({
     x:1,
     y:0,
     curHost:true,

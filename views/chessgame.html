@@ -293,14 +293,17 @@
                             } else if(json.type == 'start game'){
                                 $('#gameinviteshowlabel').text("start the game");
                                 $("#gameinvitebutton").css({opacity:0});
-                                includejs('/javascripts/chessgame/chesspaint.js');
+                                $.getScript('/javascripts/chessgame/chesspaint.js', function(){
+                                });
                             } else {
                                 console.log('Error ');
                             }
                         });
                     }
                 }
-                includejs('/javascripts/chessgame/chesspaint.js');
+                $.getScript('/javascripts/chessgame/chesspaint.js', function(){
+                    console.log('chesspaint.js finished');
+                });
             })();
         });
     </script>
