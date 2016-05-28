@@ -235,6 +235,7 @@ chesspaint.drawSingleChessman = function(){
 };
 
 chesspaint.drawGlobalChessman = function(basemap){
+    chesspaint.drawBackground();
     for(var i = 0, wlen = basemap.length;i < wlen;i++){
         for(var j = 0, hlen = basemap[i].length;j < hlen;j++){
             var x = j, y = i;
@@ -274,16 +275,22 @@ chesspaint.startFlashChessman = function(basemap, flashchessman){
     handler.push(this.drawGlobalChessman);
     handler.push(this.unDrawSomeChessman);
 
-    this.flashcir = setInterval(function(){
-        chesspaint.drawBackground();
-        try{
-            handler[i](basemap.slice(0), flashchessman);
-        }catch(e){
-            console.log(e);
-        }
-        i++;
-        i %= handler.length;
-    }, 600);
+    if(!this.flashcir){
+        this.unDrawSomeChessman(basemap.slice(0), flashchessman);
+
+        this.flashcir = setInterval(function(){
+            try{
+                handler[i](basemap.slice(0), flashchessman);
+            }catch(e){
+                console.log(e);
+            }
+            i++;
+            i %= handler.length;
+        }, 600);
+    } else {
+        this.stopFlashChessman();
+        this.startFlashChessman(basemap, flashchessman);
+    }
 };
 
 chesspaint.stopFlashChessman = function(){
@@ -291,8 +298,34 @@ chesspaint.stopFlashChessman = function(){
     this.flashcir = null;
 };
 
+chesspaint.processClickedChessman = function(num){
+    chesspaint.startFlashChessman(basemap, [{x : num.y, y : num.x}])
+}
+
 chesspaint.can.addEventListener("click", function(e){
-    var point = getPointOnCanvas(can, e.pageX, e.pageY);
+    var point =   getPointOnCanvas(can, e.pageX, e.pageY);
+
+    var neworip = {}, newclickp = {}, num = {};
+    var locp = {};
+
+    neworip.x = (chesspaint.margin - chesspaint.cellwidth / 2);
+    neworip.y = (chesspaint.margin - chesspaint.cellheight / 2);
+
+    newclickp.x = point.x - neworip.x;
+    newclickp.y = point.y - neworip.y;
+
+    num.x = parseInt(newclickp.x / chesspaint.cellwidth);
+    num.y = parseInt(newclickp.y / chesspaint.cellheight);
+
+    locp.x = (2 * num.x + 1) * chesspaint.cellwidth / 2;
+    locp.y = (2 * num.y + 1) * chesspaint.cellheight / 2;
+
+    if(Math.pow(newclickp.x - locp.x, 2) + Math.pow(newclickp.y - locp.y, 2)
+            < Math.pow(chesspaint.manradius, 2))
+    {
+        chesspaint.processClickedChessman(num);
+    }
+
 }, false);
 
 var basemap = [
@@ -310,20 +343,4 @@ var basemap = [
 
 
 chesspaint.init({ishost:true});
-chesspaint.drawBackground();
-//chesspaint.drawGlobalChessman(basemap);
-//chesspaint.unDrawSomeChessman(basemap, [{x : 0, y : 0}, {x : 2, y : 1}]);
-chesspaint.startFlashChessman(basemap, [{x : 0, y : 0}, {x : 2, y : 1}]);
-/*
-chesspaint.drawSingleChessman({
-    x:0,
-    y:0,
-    curHost:true,
-    type:'c'
-});
-chesspaint.drawSingleChessman({
-    x:1,
-    y:0,
-    curHost:true,
-    type:'p'
-});*/
+chesspaint.drawGlobalChessman(basemap);
