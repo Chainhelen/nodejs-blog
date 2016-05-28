@@ -9,7 +9,35 @@ function deepcopyarray(obj) {
         else out[i] = obj[i];
     }
     return out;
-}
+};
+
+function getPointOnCanvas(canvas, x, y) {
+    var bbox =canvas.getBoundingClientRect();
+    return { x: x- bbox.left *(canvas.width / bbox.width),
+        y:y - bbox.top  * (canvas.height / bbox.height)
+    };
+};
+
+function getChessmanPoint(chesspaint, point){
+    var x = point.x;
+    var y = point.y;
+
+    if(x < chesspaint.margin - chesspaint.manradius ||
+            x > chesspaint.margin + chesspaint.cellwidth * 8 + chesspaint.manradius){
+        return null;
+    }
+    if(y < chesspaint.margin - chesspaint.manradius || 
+            y > chesspaint.margin + chesspaint.cellheight * 9 + chesspaint.manradius){
+        return null;
+    }
+
+    x = x - chesspaint.margin + chesspaint.cellwidth / 2;
+
+    if(chesspaint.ishost){
+    } else {
+
+    }
+};
 
 var chesspaint = {
     width : 0,
@@ -19,8 +47,8 @@ var chesspaint = {
     margin: 30,
     ishost: true,
     manradius: 0,
-    ctx : can.getContext('2d'),
     can : document.getElementById("can"),
+    ctx : can.getContext('2d'),
     flashcir : null
 };
 
@@ -246,7 +274,7 @@ chesspaint.startFlashChessman = function(basemap, flashchessman){
     handler.push(this.drawGlobalChessman);
     handler.push(this.unDrawSomeChessman);
 
-    flashcir = setInterval(function(){
+    this.flashcir = setInterval(function(){
         chesspaint.drawBackground();
         try{
             handler[i](basemap.slice(0), flashchessman);
@@ -259,9 +287,13 @@ chesspaint.startFlashChessman = function(basemap, flashchessman){
 };
 
 chesspaint.stopFlashChessman = function(){
-    clearInterval(flashcir);
-}
+    clearInterval(this.flashcir);
+    this.flashcir = null;
+};
 
+chesspaint.can.addEventListener("click", function(e){
+    var point = getPointOnCanvas(can, e.pageX, e.pageY);
+}, false);
 
 var basemap = [
     ['cc', 'mc', 'xc', 'sc', 'jc', 'sc', 'xc', 'mc', 'cc'],
